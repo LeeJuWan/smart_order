@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SmartOrder</string>
+    <string name="default_notification_channel_id">Channel_ID</string>
+</resources>

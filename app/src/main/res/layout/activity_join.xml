@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="missingPrefix"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.ssomai.android.scalablelayout.ScalableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:scale_base_height="700"
+        app:scale_base_width="300">
+
+        <!--사용할 아이디 입력-->
+        <EditText
+            android:id="@+id/join_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="230"
+            app:scale_height="50"
+            app:scale_left="20"
+            app:scale_textsize="15"
+            app:scale_top="50"
+            android:hint="사용 할 아이디 입력"
+            android:inputType="text"
+            android:autofillHints="" />
+
+        <!--사용할 비밀번호 입력-->
+        <EditText
+            android:id="@+id/join_pw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="230"
+            app:scale_height="50"
+            app:scale_left="20"
+            app:scale_textsize="15"
+            app:scale_top="100"
+            android:hint="사용 할 비밀번호 입력"
+            android:inputType="textPassword" />
+
+        <!--상호명 입력-->
+        <EditText
+            android:id="@+id/join_workplace_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="230"
+            app:scale_height="50"
+            app:scale_left="20"
+            app:scale_textsize="15"
+            app:scale_top="150"
+            android:hint="사업장 상호명 입력"
+            android:inputType="text" />
+
+        <!--사업장 주소 입력-->
+        <EditText
+            android:id="@+id/join_workplace_adress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="230"
+            app:scale_height="50"
+            app:scale_left="20"
+            app:scale_textsize="15"
+            app:scale_top="200"
+            android:hint="사업장 주소 입력"
+            android:inputType="text" />
+
+        <!--사업장 또는 사장님 전화번호 입력-->
+        <EditText
+            android:id="@+id/join_workplace_phoneNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="230"
+            app:scale_height="50"
+            app:scale_left="20"
+            app:scale_textsize="15"
+            app:scale_top="250"
+            android:hint="(사업장 또는 사장님) 전화번호 입력"
+            android:inputType="phone" />
+
+        <!--회원 가입 취소 버튼-->
+        <Button
+            android:id="@+id/join_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="100"
+            app:scale_height="50"
+            app:scale_left="20"
+            app:scale_textsize="15"
+            app:scale_top="370"
+            android:text="취소" />
+
+        <!--회원 가입 완료 버튼-->
+        <Button
+            android:id="@+id/join_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="100"
+            app:scale_height="50"
+            app:scale_left="170"
+            app:scale_textsize="15"
+            app:scale_top="370"
+            android:text="가입 하기"/>
+
+    </com.ssomai.android.scalablelayout.ScalableLayout>
+</LinearLayout>
