@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <com.ssomai.android.scalablelayout.ScalableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:scale_base_height="700"
+        app:scale_base_width="300">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="250"
+            app:scale_height="50"
+            app:scale_left="10"
+            app:scale_textsize="13"
+            app:scale_top="120"
+            android:text="테이블 번호를 입력한 뒤, 매장에 비치된 메뉴판을 보시고 음성으로 주문 해주시면 됩니다."
+            android:textStyle="bold"
+            android:textSize="10sp" />
+
+        <!--테이블 번호 입력-->
+        <EditText
+            android:id="@+id/table_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="120"
+            app:scale_height="50"
+            app:scale_left="10"
+            app:scale_textsize="13"
+            app:scale_top="170"
+            android:hint="테이블 번호 입력"
+            android:inputType="text" />
+        <!--주문 진행 버튼-->
+        <Button
+            android:id="@+id/Order"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="120"
+            app:scale_height="50"
+            app:scale_left="150"
+            app:scale_textsize="13"
+            app:scale_top="170"
+            android:text="음성 주문하기"/>
+
+    </com.ssomai.android.scalablelayout.ScalableLayout>
+</LinearLayout>

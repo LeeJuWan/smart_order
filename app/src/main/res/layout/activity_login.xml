@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.ssomai.android.scalablelayout.ScalableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:scale_base_height="700"
+        app:scale_base_width="300">
+
+        <!--로그인 아이디 입력-->
+        <EditText
+            android:id="@+id/login_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="230"
+            app:scale_height="50"
+            app:scale_left="20"
+            app:scale_textsize="15"
+            app:scale_top="170"
+            android:hint="아이디"
+            android:inputType="text"/>
+
+        <!--로그인 비밀번호 입력-->
+        <EditText
+            android:id="@+id/login_pw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="230"
+            app:scale_height="50"
+            app:scale_left="20"
+            app:scale_textsize="15"
+            app:scale_top="230"
+            android:hint="비밀번호"
+            android:inputType="textPassword"/>
+
+        <!--로그인 진행 버튼-->
+        <Button
+            android:id="@+id/admin_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="100"
+            app:scale_height="50"
+            app:scale_left="20"
+            app:scale_textsize="15"
+            app:scale_top="300"
+            android:text="로그인" />
+
+        <!--회원 가입 진행 버튼-->
+        <Button
+            android:id="@+id/admin_join"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:scale_width="100"
+            app:scale_height="50"
+            app:scale_left="170"
+            app:scale_textsize="15"
+            app:scale_top="300"
+            android:text="회원 가입"/>
+
+
+    </com.ssomai.android.scalablelayout.ScalableLayout>
+</LinearLayout>
