@@ -29,7 +29,7 @@ public class LoginActivity extends AppCompatActivity{
 
     private String check_id = ""; //로그인 아이디
     private String access_pw = ""; //로그인 비밀번호
-    private String token = ""; //로그인 시 현재토큰
+    private static String token = ""; //로그인 시 현재토큰
 
     @Override
     protected void onCreate(Bundle savedInstanceStat) {
@@ -68,7 +68,7 @@ public class LoginActivity extends AppCompatActivity{
                     });
                     if(token == null){
                         //등록된 토큰이 없기때문에 새 발급이 이뤄진걸로 판단
-                        token=GetIP.getToken();
+                        token=getStaticData.getToken();
                     }
                     sendRequest();
                 }
@@ -85,41 +85,30 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     public void sendRequest() {
-        String url = "http://" + GetIP.getIp() + "/an01/login.jsp";
+        String url = "http://" + getStaticData.getIP() + "/an01/login.jsp";
 
-        StringRequest sr = new StringRequest(
-                Request.Method.POST,
-                url,
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.i("응답","응답");
-                        String receiveSt = response;
+                        String[] resPonse_split = response.split(" ");
 
-                        Log.i("전달받음",receiveSt);
-                        String[] spSt = receiveSt.split(" ");
-
-                        boolean vaild = BCrypt.checkpw(access_pw, spSt[0]);
-                        //JSP에서 비밀번호 긁어오고 사용자가 입력한 값과 같으면 true 틀리면 , false
-                        if (vaild) {
-                            //해당 하는 아이디에 매칭되는 DB 비밀번호
-                            Intent i = new Intent(getApplicationContext(),OrderListActivity.class);
-                            i.putExtra("serialNumber", spSt[1]);
-                            startActivity(i);
-                            finish();
-                        } else {
-                            switch (spSt[0]){
-                                //만약 비밀번호가 없다면, 아이디를 잘못 입력한것임
-                                case "아이디불일치":
-                                    Toast.makeText(getApplicationContext(),"아이디를 잘못 입력하였습니다.",Toast.LENGTH_SHORT).show();
-                                    break;
-                                default :
-                                    //비밀번호 불일치시 이동.
-                                    Toast.makeText(getApplicationContext(),"비밀번호를 잘못 입력하였습니다.",Toast.LENGTH_SHORT).show();
-                                    break;
-
+                        if(resPonse_split[0].equals("NotFoundID")){
+                            Toast.makeText(getApplicationContext(),"아이디를 잘못 입력하였습니다.",Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            boolean vaild = BCrypt.checkpw(access_pw, resPonse_split[0]);
+                            //JSP에서 비밀번호 긁어오고 사용자가 입력한 값과 같으면 true 틀리면 , false
+                            if (vaild) {
+                                //해당 하는 아이디에 매칭되는 DB 비밀번호
+                                Intent i = new Intent(getApplicationContext(),OrderListActivity.class);
+                                i.putExtra("serialNumber", resPonse_split[1]);
+                                startActivity(i);
+                                finish();
                             }
-
+                            else   //비밀번호 불 일치
+                                Toast.makeText(getApplicationContext(),"비밀번호를 잘못 입력하였습니다.",Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
@@ -129,15 +118,14 @@ public class LoginActivity extends AppCompatActivity{
                         error.printStackTrace();
                     }
                 }
-
-        ) {
+        )
+        {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> param = new HashMap<String, String>();
                 param.put("id",check_id);
-                param.put("token,",token ); //추가 코드
-                Log.i("아이디",check_id);
-                Log.i("토큰",token);
+                param.put("token",token );
+
                 return param;
             }
         };
@@ -145,7 +133,7 @@ public class LoginActivity extends AppCompatActivity{
         if (AppHelper.requestQueue == null) {
             AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
-        sr.setShouldCache(false);
-        AppHelper.requestQueue.add(sr);
+        stringRequest.setShouldCache(false);
+        AppHelper.requestQueue.add(stringRequest);
     }
 }

@@ -4,12 +4,14 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,64 +27,62 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class AddressList extends ListActivity {
-    EditText editText;
+
     ArrayList<AddressDTO> items;
     ArrayList<AddressDTO> itemsClone;
     AddressAdapter adapter;
 
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        ListView listView =(ListView) l;
-        AddressDTO addressDTO=(AddressDTO)l.getItemAtPosition(position);
-        /*v.findViewById()*/
+    protected void onListItemClick(ListView getList, View v, int position, long id) {
+        super.onListItemClick(getList, v, position, id);
 
-        String st =addressDTO.getAddress();
-        String st02 = addressDTO.getPlace_name();
-        Log.i("출력값", st+" " + st02);
+        //리스트뷰 객체 가져오기
+        ListView listView = (ListView) getList;
+        //객체의 index부분의 내용
+        AddressDTO addressDTO = (AddressDTO) getList.getItemAtPosition(position);
+
+        String market_Address = addressDTO.getAddress();
+        String market_Place = addressDTO.getPlace_name();
+
+
         AddressDTO sendAddrDTO = null;
-        for(int i =0; i< itemsClone.size();i++){
-            if(st.equals(itemsClone.get(i).getAddress()) && st02.equals(itemsClone.get(i).getPlace_name())){
-                sendAddrDTO=itemsClone.get(i);
+        for (int i = 0; i < itemsClone.size(); i++) {
+            if (market_Address.equals(itemsClone.get(i).getAddress()) && market_Place.equals(itemsClone.get(i).getPlace_name())) {
+                sendAddrDTO = itemsClone.get(i);
             }
         }
 
-        Intent intent = new Intent(getApplicationContext(),OrderActivity.class);
-        intent.putExtra("DTO",sendAddrDTO);
+        Intent intent = new Intent(getApplicationContext(), OrderActivity.class);
+        intent.putExtra("DTO", sendAddrDTO);
         startActivity(intent);
-
-
-
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.address_list);
 
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); //상태바 제거
 
+        final EditText seach_Line = (EditText) findViewById(R.id.seach_line);
 
-        Button button = (Button) findViewById(R.id.button);
-        editText = (EditText) findViewById(R.id.editText);
-
+        //기본 초기 매장 정보 제공 진행
         sendRequest();
 
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-        editText.addTextChangedListener(new TextWatcher() {
+        seach_Line.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -94,7 +94,7 @@ public class AddressList extends ListActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                String text = editText.getText().toString();
+                String text = seach_Line.getText().toString();
                 search(text);
             }
         });
@@ -103,28 +103,26 @@ public class AddressList extends ListActivity {
     }
 
     public void search(String charText) {
+        //기존 데이터 삭제
         items.clear();
 
-
-        if (charText.length() == 0) {
+        if (charText.length() == 0)
             items.addAll(itemsClone);
-        } else {
+        else {
             for (int i = 0; i < itemsClone.size(); i++) {
-                String st = itemsClone.get(i).getAddress() + " " + itemsClone.get(i).getPlace_name();
-                Log.i("묶여진", st);
-                if (st.toLowerCase().contains(charText.toLowerCase()))
-                {
+                String market_Address = itemsClone.get(i).getAddress() + " " + itemsClone.get(i).getPlace_name();
+
+                if (market_Address.toLowerCase().contains(charText.toLowerCase())){
                     items.add(itemsClone.get(i));
                 }
             }
         }
-        adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged(); //사용자가 매장 검색 시 리스트뷰 내용 변경
     }
 
 
     public void sendRequest() {
-        String url = "http://"+ GetIP.getIp()+"/an01/address.jsp";
-
+        String url = "http://" + getStaticData.getIP() + "/an01/address.jsp";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -132,9 +130,10 @@ public class AddressList extends ListActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             items = new ArrayList<AddressDTO>();
-                            JSONObject jsonObj = response;
-                            JSONArray jArray = (JSONArray) jsonObj.get("sendData");
+                            JSONArray jArray = (JSONArray) response.get("sendData");
+
                             for (int i = 0; i < jArray.length(); i++) {
+
                                 JSONObject row = jArray.getJSONObject(i);
                                 AddressDTO dto = new AddressDTO();
                                 dto.setPlace_name(row.getString("place_name"));
@@ -143,71 +142,62 @@ public class AddressList extends ListActivity {
                                 dto.setPhone_number(row.getString("phone_number"));
 
                                 items.add(dto);
-
-
                             }
                             itemsClone = new ArrayList<AddressDTO>();
                             itemsClone.addAll(items);
 
-                            adapter = new AddressAdapter(
-                                    AddressList.this, items);
+                            adapter = new AddressAdapter(AddressList.this, items);
                             setListAdapter(adapter);
-                            //데이터 다모은 후.
+                            //데이터 all add 진행
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            System.err.println("AddressList JSONException error");
                         }
-                        //데이터 저장하고 출력끝 이제 비동기적인 활성화
-
-
+                        //데이터 저장하고 출력 마무리, 이제 비동기적인 활성화
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                });
 
-
-        if (AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
+        if (getStaticData.requestQueue == null)
+            getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
 
 
         jsonObjectRequest.setShouldCache(false);
-        AppHelper.requestQueue.add(jsonObjectRequest);
+        getStaticData.requestQueue.add(jsonObjectRequest);
     }
 
     class AddressAdapter extends ArrayAdapter<AddressDTO> {
 
-        public AddressAdapter(Context context, List<AddressDTO> objects) {
+        AddressAdapter(Context context, List<AddressDTO> objects) {
             super(context, R.layout.address_row, objects);
         }
 
-
+        @NonNull
         @Override
-        public View getView(int position,  View convertView,  ViewGroup parent) {
-            View v = convertView;
-            if (v == null) {
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = convertView;
+            if (view == null) {
                 LayoutInflater li =
                         (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                v = li.inflate(R.layout.address_row, null);
+                view = li.inflate(R.layout.address_row, null);
 
             }
             AddressDTO dto = items.get(position);
             if (dto != null) {
-                TextView place_name = (TextView) v.findViewById(R.id.place_name);
-                TextView address = (TextView) v.findViewById(R.id.address);
-                TextView phone_number = (TextView) v.findViewById(R.id.phone_number);
+                TextView place_name = (TextView)view.findViewById(R.id.place_name);
+                TextView address = (TextView)view.findViewById(R.id.address);
+                TextView phone_number = (TextView)view.findViewById(R.id.phone_number);
 
                 place_name.setText(dto.getPlace_name());
                 address.setText(dto.getAddress());
                 phone_number.setText(dto.getPhone_number());
-
             }
-
-            return v;
-
+            return view;
         }
     }
 }

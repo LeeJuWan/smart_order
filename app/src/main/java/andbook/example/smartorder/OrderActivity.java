@@ -1,6 +1,7 @@
 package andbook.example.smartorder;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,11 +23,20 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
-//Order Activity는 손님이 해당 음식점을 고른 뒤, 해당 음식정에서 주문을 하기 위한 Activity 임
-//모든 매장은 OrderActivity를 공용으로 사용 , 어차피 객체라서 실제로는 다 따로 사용하는것과 같음
+//현재 문제점: userToken을 가져오는 것은 되나 fcm에서 넘겨주려할때 가져온 token이 사라짐 , 알아본 결과 네트워킹 처리가 너무 빈번하여 생기는 문제점 ..
 public class OrderActivity extends AppCompatActivity {
 
     private EditText tableNumber;
@@ -38,21 +48,23 @@ public class OrderActivity extends AppCompatActivity {
     private Intent intent;
     private SpeechRecognizer recognizer;
 
-    private String serialNumber = "";
+    private AddressDTO addrDTO;
+
+
     private MyFirebasePushServer pushServer;
+    private String userDeviceToken = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceStat) {
         super.onCreate(savedInstanceStat);
         setContentView(R.layout.activity_order);
-        //값 받아주기
-        Intent getIntent = getIntent();
-        AddressDTO addrDTO = (AddressDTO) getIntent.getSerializableExtra("DTO");
-        Log.i("오더액티비티",String.valueOf(addrDTO.getWorkplace_num()));
-
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN); //상태바 제거
+
+        //값 받아주기
+        Intent getIntent = getIntent();
+        addrDTO = (AddressDTO) getIntent.getSerializableExtra("DTO");
 
         //음성인식을 위한 intent & recognizer initializing
         intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH); //음성 인식 intent 생성
@@ -68,8 +80,8 @@ public class OrderActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     //마시멜로우 이상 버전일 시 권한 확인 진행
                     if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {  //권한 허용 시 음식 주문 그대로 진행
-                        if (tableNumber.getText().toString() == null || "".equals(tableNumber.getText().toString())) {  //"" <- 스페이스바 방지
-                            new AlertDialog.Builder(OrderActivity.this) //테이블 번호 미입력 시 다이얼로그 출력
+                        if (tableNumber.getText().toString() == null || "".equals(tableNumber.getText().toString())) {
+                            new AlertDialog.Builder(OrderActivity.this) //테이블 번호 미입력 에러
                                     .setTitle("테이블 번호 미입력")
                                     //.setIcon("//") 아직 디자인 없음
                                     .setMessage("고객님의 테이블 번호를 입력해주세요")
@@ -86,7 +98,7 @@ public class OrderActivity extends AppCompatActivity {
                             try {
                                 recognizer.startListening(intent); //음성 인식 시작
                             } catch (SecurityException e) {
-                                System.err.println("SecurityException error");
+                                System.err.println("OrderActivty SecurityException error");
                             }
                             new AlertDialog.Builder(OrderActivity.this) //정보 제공 출력
                                     .setTitle("주문 진행")
@@ -102,12 +114,13 @@ public class OrderActivity extends AppCompatActivity {
                                                 }
                                             }).show();
                         }
-                    } else {
+                    }
+                    else{
                         CheckPermission(); //권한 미허용 시 권한을 얻게함
                     }
                 } else {  //마시멜로우 버전 미만일 시 권한 확인 없이 진행
-                    if (tableNumber.getText().toString() == null || "".equals(tableNumber.getText().toString())) {  //"" <- 스페이스바 방지
-                        new AlertDialog.Builder(OrderActivity.this) //테이블 번호 미입력 시 다이얼로그 출력
+                    if (tableNumber.getText().toString() == null || "".equals(tableNumber.getText().toString())) {
+                        new AlertDialog.Builder(OrderActivity.this) //테이블 번호 미입력 에러
                                 .setTitle("테이블 번호 미입력")
                                 //.setIcon("//") 아직 디자인 없음
                                 .setMessage("고객님의 테이블 번호를 입력해주세요")
@@ -124,7 +137,7 @@ public class OrderActivity extends AppCompatActivity {
                         try {
                             recognizer.startListening(intent); //음성 인식 시작
                         } catch (SecurityException e) {
-                            System.err.println("SecurityException error");
+                            System.err.println("OrderActivty SecurityException error");
                         }
                         new AlertDialog.Builder(OrderActivity.this) //정보 제공 출력
                                 .setTitle("주문 진행")
@@ -175,51 +188,54 @@ public class OrderActivity extends AppCompatActivity {
             //음성 인식 주문 오류 추적 코드
             switch (error) {
                 case SpeechRecognizer.ERROR_AUDIO:
-                    message = "오디오 에러";
+                    message = "오디오 오류";
                     break;
                 case SpeechRecognizer.ERROR_CLIENT:
-                    message = "클라이언트 에러";
+                    message = "클라이언트 오류";
                     break;
                 case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
-                    message = "퍼미션 없음";
+                    message = "허용된 권한이 없습니다.";
                     break;
                 case SpeechRecognizer.ERROR_NETWORK:
-                    message = "네트워크 에러";
+                    message = "네트워크 오류";
                     break;
                 case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-                    message = "네트웍 타임아웃";
+                    message = "네트워크 시간초과";
                     break;
                 case SpeechRecognizer.ERROR_NO_MATCH:
-                    message = "찾을 수 없음";
+                    message = "찾을 수 없습니다.";
                     break;
                 case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
-                    message = "RECOGNIZER가 바쁨";
+                    message = "음성인식 과부하";
                     break;
                 case SpeechRecognizer.ERROR_SERVER:
-                    message = "서버가 이상함";
+                    message = "서버 오류";
                     break;
                 case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
-                    message = "말하는 시간초과";
+                    message = "음성 주문 시간초과";
                     break;
                 default:
-                    message = "알 수 없는 오류임";
+                    message = "알 수 없는 오류";
                     break;
             }
-            Toast.makeText(getApplicationContext(), "음성 인식 오류가 발생하였습니다 ! : " + message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "음성 인식 오류가 발생하였습니다 -> " + message, Toast.LENGTH_LONG).show();
         }
 
         @Override
-        public void onResults(Bundle results) { // 인식 결과가 준비되면 호출됩니다.
+        public void onResults(Bundle results) {
+            // 인식 결과가 준비되면 호출
+
             // 아래 코드는 음성인식된 결과를 ArrayList로 모아오기
-            ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             String voice_value = "";
+
+            ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             voice_value = matches != null ? matches.get(0) : "음성인식 오류";
 
             order_confirm = new EditText(getApplicationContext()); //음성 주문 시 ,수정가능한 형태로 변환 진행
             order_confirm.setText(voice_value); //음성 주문 입력 값 EditText에 삽입
             //여기서 음성결과 출력
-            new AlertDialog.Builder(OrderActivity.this) //테이블 번호 미입력 시 다이얼로그 출력
-                    .setCancelable(false) //화면 밖 터치 다이얼로그 안사라짐
+            new AlertDialog.Builder(OrderActivity.this)
+                    .setCancelable(false)
                     .setTitle("주문 결과 확인")
                     .setView(order_confirm)
                     //.setIcon("//") 아직 디자인 없음
@@ -227,16 +243,18 @@ public class OrderActivity extends AppCompatActivity {
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    //order_confirm.getText().toString(); 여기에 주문 값 들어있음
-                                    //여기서 db랑 연결해서 주문 정보로 보내줘야됨
+                                    //여기서 DB 연결 후, 주문 정보 DB에 주문 내역 삽입 및 해당 단말기 소유자에게 알람 진행
+                                    //매장 주인 토큰 정보 얻어오기
+                                    //userDeviceToken=sendTokenRequest(getApplicationContext(),String.valueOf(addrDTO.getWorkplace_num()));
+                                    //sendData(); //음식정보 저장
                                     pushServer = new MyFirebasePushServer();
-                                    Toast.makeText(getApplicationContext(), tableNumber.getText().toString()+"번 테이블"
-                                            +order_confirm.getText().toString()+" 주문 완료되었습니다 !", Toast.LENGTH_SHORT).show();
-                                    GetIP.setSerialNumber(serialNumber); //현재 매장 고유키 저장
-                                    pushServer.sendFCMRequest(tableNumber.getText().toString()+order_confirm.getText().toString(),getApplicationContext());
+
+                                    Log.d("진입 OrderActivity",userDeviceToken);
+                                    pushServer.sendFCMRequest(
+                                            tableNumber.getText().toString()+"번 "+order_confirm.getText().toString(),
+                                            "crlVt-RE98I:APA91bG0xGkv-Bisd3DDNy-iAI64BgmoI-GeufGKRN5DxniMQwoSsoBhwu0BpD7EMmjy0BXhfT5bAbQdH7cud4TXKWG2JjlfHjPAMN3gPlpIKQsdJQzZxeFSQr_-Swr2lhCCZ5F6RK01"); //주문 내역 전송
                                     dialog.dismiss();
                                     stopSpeechRecognizer(); //음성 주문 완료로 인한 , 음성 객체 반환
-
                                 }
                             })
                     .setNegativeButton("주문 취소",
@@ -267,6 +285,91 @@ public class OrderActivity extends AppCompatActivity {
             recognizer.cancel();
             recognizer = null;
         }
+    }
+
+    public void sendData() {
+        String url = "http://" + getStaticData.getIP() + "/an01/insert_Orderlist.jsp";
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (response.equals("성공")) {
+                            Toast.makeText(getApplicationContext(), tableNumber.getText().toString() + "번 테이블 "
+                                    + order_confirm.getText().toString() + " 주문 완료되었습니다. 감사합니다.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), tableNumber.getText().toString() + "번 테이블 "
+                                    + order_confirm.getText().toString() + "주문 오류 다시 시도 해주세요.", Toast.LENGTH_LONG).show();;
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+
+                    }
+                }
+        )
+        {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("orderInfo", order_confirm.getText().toString());
+                map.put("workplace_num", String.valueOf(addrDTO.getWorkplace_num()));
+                map.put("tableNumber", tableNumber.getText().toString());
+
+                return map;
+            }
+        };
+        if (getStaticData.requestQueue == null) {
+            getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+        stringRequest.setShouldCache(false); // 이전 결과가 있더라도 새로 요청해서 응답을 보여줌
+        getStaticData.requestQueue.add(stringRequest);
+    }
+
+    public String sendTokenRequest(final Context context, final String serialNumber) {
+        String url = "http://" + getStaticData.getIP() + "/an01/getSerial_setToken.jsp";
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if(response.equals("")){
+                            userDeviceToken ="error";
+                            System.err.println("MyFirebasePushServer token error"); //오류 추적 코드
+                        }
+                        else {
+                            userDeviceToken = response; //고유키(매장)에 해당하는 사용자의 토큰을 저장
+                            Log.d("진입 token", userDeviceToken);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> param = new HashMap<String, String>();
+                param.put("serialNumber",serialNumber);
+
+                return param;
+            }
+        };
+        if (getStaticData.requestQueue == null) {
+            getStaticData.requestQueue = Volley.newRequestQueue(context);
+        }
+        stringRequest.setShouldCache(false);
+        getStaticData.requestQueue.add(stringRequest);
+        return userDeviceToken;
     }
 
     //퍼미션 권한 진행 함수

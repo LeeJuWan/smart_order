@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//알람에서 넘어갈때 시리얼 넘버가 없어 생기는 문제점
 public class OrderListActivity extends ListActivity {
     TextView textView;
     ArrayList<OrderListDTO> items;
@@ -37,6 +39,9 @@ public class OrderListActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.order_list);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); //상태바 제거
 
         Intent i = getIntent();
         serialNumber = i.getExtras().getString("serialNumber");
@@ -57,7 +62,7 @@ public class OrderListActivity extends ListActivity {
     }
 
     public void sendRequest() {
-        String url = "http://"+ GetIP.getIp()+"/an01/list.jsp";
+        String url = "http://"+ getStaticData.getIP()+"/an01/list.jsp";
 
         StringRequest sr = new StringRequest(
                 Request.Method.POST, url,

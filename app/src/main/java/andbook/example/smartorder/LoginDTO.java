@@ -5,15 +5,6 @@ public class LoginDTO {
     private int workplace_num;
     private String password;
 
-    @Override
-    public String toString() {
-        return "LoginDTO{" +
-                "id='" + id + '\'' +
-                ", workplace_num=" + workplace_num +
-                ", password='" + password + '\'' +
-                '}';
-    }
-
     public String getId() {
         return id;
     }

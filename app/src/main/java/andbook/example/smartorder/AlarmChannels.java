@@ -67,7 +67,6 @@ public class AlarmChannels {
     public static  void sendNotification(Context context, @Channel String channel ,String message){
         Intent intent = new Intent(context,OrderListActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("serialNumber",GetIP.getSerialNumber()); //매장 고유키를 통해서 관리자는 자신의 매장 정보내역에 바로 접근 가능
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,
                 PendingIntent.FLAG_ONE_SHOT); //FLAG_ONE_SHOT 일회용 알람
@@ -75,8 +74,9 @@ public class AlarmChannels {
         notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
         defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        builder = new Notification.Builder(context)
+        builder = new Notification.Builder(context,channel)
                 .setTicker(message)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle("스마트 주문")
                 .setContentText(message)
@@ -84,7 +84,6 @@ public class AlarmChannels {
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent)
                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS)
-                .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
         bigTextStyle= new Notification.BigTextStyle(builder);
         bigTextStyle.setBigContentTitle("스마트 주문");
@@ -97,7 +96,6 @@ public class AlarmChannels {
     public static void sendNotification_notOreo(Context context , String message){
         Intent intent = new Intent(context,OrderListActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("serialNumber",GetIP.getSerialNumber()); //매장 고유키를 통해서 관리자는 자신의 매장 정보내역에 바로 접근 가능
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,
                 PendingIntent.FLAG_ONE_SHOT); //FLAG_ONE_SHOT 일회용 알람
@@ -108,11 +106,11 @@ public class AlarmChannels {
         builder = new Notification.Builder(context)
                 .setTicker(message)
                 .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("스마트 주문")
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent)
                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
