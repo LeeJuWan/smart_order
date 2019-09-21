@@ -8,14 +8,9 @@ import com.android.volley.RequestQueue;
 public class getStaticData {
     public static RequestQueue requestQueue;
 
-    private static String ip = "zwsdkd.cafe24.com";
     private static String token = "";
 
-
-    public static String getIP() {
-        return ip;
-    }
-
+    public static String getIP() { return "zwsdkd.cafe24.com"; }
 
     public static void setToken(String new_Token){
         token = new_Token;

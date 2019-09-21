@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -29,9 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//알람에서 넘어갈때 시리얼 넘버가 없어 생기는 문제점
 public class OrderListActivity extends ListActivity {
-    TextView textView;
+
     ArrayList<OrderListDTO> items;
     String serialNumber;
 
@@ -46,13 +47,13 @@ public class OrderListActivity extends ListActivity {
         Intent i = getIntent();
         serialNumber = i.getExtras().getString("serialNumber");
 
-        Button button = (Button) findViewById(R.id.button);
-        textView = (TextView) findViewById(R.id.textView);
+        Button update_btn = (Button) findViewById(R.id.update);
+        TextView appView = (TextView) findViewById(R.id.app_name);
 
         //초기 리스트활성화
         sendRequest();
 
-        button.setOnClickListener(new View.OnClickListener() {
+        update_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //리트스활성화를 못믿는 나이가 잇으신분들을 위한 새로고침
@@ -61,18 +62,16 @@ public class OrderListActivity extends ListActivity {
         });
     }
 
-    public void sendRequest() {
-        String url = "http://"+ getStaticData.getIP()+"/an01/list.jsp";
+    private void sendRequest() {
+        StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/list.jsp");
 
-        StringRequest sr = new StringRequest(
-                Request.Method.POST, url,
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
-
-                                JSONObject jsonObj = new JSONObject(response);
-
+                            JSONObject jsonObj = new JSONObject(response);
                             items = new ArrayList<OrderListDTO>();
 
                             JSONArray jArray = (JSONArray) jsonObj.get("sendData");
@@ -82,13 +81,15 @@ public class OrderListActivity extends ListActivity {
                                 dto.setOrder_time(row.getString("order_time"));
                                 dto.setOrder_info(row.getString("order_info"));
                                 dto.setWorkplace_num(row.getInt("workplace_num"));
+                                dto.setTable_number(Integer.parseInt(row.getString("table_number")));
+
                                 items.add(dto);
                             }
                             OrderAdapter adapter = new OrderAdapter(
                                     OrderListActivity.this, R.layout.order_row, items);
                             setListAdapter(adapter);
-                        }catch(Exception e){
-                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            Log.i("OrderListActivty error","JSONException");
                         }
                     }
                 },
@@ -101,16 +102,16 @@ public class OrderListActivity extends ListActivity {
         ) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-               Map<String,String> param = new HashMap<String,String>();
-                param.put("serialNumber",serialNumber);
+                Map<String, String> param = new HashMap<String, String>();
+                param.put("serialNumber", serialNumber);
                 return param;
             }
         };
-        if (AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+        if (getStaticData.requestQueue == null) {
+            getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
-        sr.setShouldCache(false);
-        AppHelper.requestQueue.add(sr);
+        stringRequest.setShouldCache(false);
+        getStaticData.requestQueue.add(stringRequest);
     }
 
     class OrderAdapter extends ArrayAdapter<OrderListDTO> {
@@ -118,6 +119,7 @@ public class OrderListActivity extends ListActivity {
         OrderAdapter(Context context, int resource, List<OrderListDTO> objects) {
             super(context, resource, objects);
         }
+
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -130,14 +132,64 @@ public class OrderListActivity extends ListActivity {
             }
             OrderListDTO dto = items.get(position);
             if (dto != null) {
+                StringBuilder orderInfo = new StringBuilder();
                 TextView order_info = (TextView) v.findViewById(R.id.order_info);
-                TextView order_time = (TextView) v.findViewById(R.id.order_time);
-                TextView workplace_num = (TextView) v.findViewById(R.id.workplace_num);
-                order_info.setText(dto.getOrder_info());
-                order_time.setText(dto.getOrder_time());
-                workplace_num.setText(String.valueOf(dto.getWorkplace_num()));
+                Button delete_btn = (Button) v.findViewById(R.id.delete);
+
+                orderInfo.append(dto.getOrder_info()).append("\n");
+                orderInfo.append(dto.getOrder_time()).append("\n");
+                orderInfo.append(dto.getWorkplace_num()).append("\n");
+                orderInfo.append(dto.getTable_number());
+
+                order_info.setText(orderInfo);
+
+                delete_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        OrderListDTO dto = items.get(position);
+                        deleteList(dto);
+                    }
+                });
             }
             return v;
         }
+    }
+
+
+    private void deleteList(final OrderListDTO dto) {
+        StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/delete_list.jsp");
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST, String.valueOf(url),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        //삭제응답을 받고난 후, 리스트 최신화를 위한 데이터 다시 불러오기.
+                        sendRequest();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> param = new HashMap<String, String>();
+                param.put("order_time", dto.getOrder_time());
+                param.put("order_info", dto.getOrder_info());
+                param.put("workplace_num", String.valueOf(dto.getWorkplace_num()));
+                param.put("table_number", String.valueOf(dto.getTable_number()));
+
+                return param;
+            }
+        };
+        if (getStaticData.requestQueue == null) {
+            getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+        stringRequest.setShouldCache(false);
+        getStaticData.requestQueue.add(stringRequest);
     }
 }

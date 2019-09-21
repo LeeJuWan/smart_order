@@ -22,6 +22,7 @@ public class AlarmChannels {
     private static NotificationManager notificationManager; //푸시 알람 매니저 생성
     private static Notification.BigTextStyle bigTextStyle; //푸시 알람 핀치줌을 위한 텍스트 스타일 생성
     private static Uri defaultSoundUri; //알림용
+    private static Intent intent;
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({ //알람채널을 위한 ID 및 상세 메시지 생성
@@ -64,8 +65,9 @@ public class AlarmChannels {
 
     //오레오 이상 버전
     @TargetApi(Build.VERSION_CODES.O)
-    public static  void sendNotification(Context context, @Channel String channel ,String message){
-        Intent intent = new Intent(context,OrderListActivity.class);
+    public static  void sendNotification(Context context, @Channel String channel ,String message, String serialNumber){
+        intent = new Intent(context,OrderListActivity.class);
+        intent.putExtra("serialNumber",serialNumber);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,
@@ -80,7 +82,6 @@ public class AlarmChannels {
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle("스마트 주문")
                 .setContentText(message)
-                .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent)
                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS)
@@ -93,8 +94,9 @@ public class AlarmChannels {
 
     //오레오 미만 버전
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public static void sendNotification_notOreo(Context context , String message){
+    public static void sendNotification_notOreo(Context context , String message , String serialNumber){
         Intent intent = new Intent(context,OrderListActivity.class);
+        intent.putExtra("serialNumber",serialNumber);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,
@@ -109,7 +111,6 @@ public class AlarmChannels {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("스마트 주문")
                 .setContentText(message)
-                .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS)
                 .setContentIntent(pendingIntent)

@@ -15,6 +15,7 @@ import com.google.firebase.messaging.RemoteMessage;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private String message = "";
+    private String serialNumber = "";
 
     @Override
     public void onNewToken(String token) {
@@ -34,6 +35,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if(remoteMessage.getData().size()> 0){
             Log.d("진입 getData", String.valueOf(remoteMessage.getData())); //추적코드
             message = remoteMessage.getData().get("body");
+            serialNumber = remoteMessage.getData().get("title");
             Log.d("진입 onMessage:message->",message);
             //FCM PUT 진행 시 data로 보내어 왔을 때
 
@@ -53,10 +55,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             Log.d("진입 Message:notification",message);
-            AlarmChannels.sendNotification(getApplicationContext(),AlarmChannels.Channel.MESSAGE_ID,message);
+            AlarmChannels.sendNotification(getApplicationContext(),AlarmChannels.Channel.MESSAGE_ID,message,serialNumber);
         }
         else
-            AlarmChannels.sendNotification_notOreo(getApplicationContext(),message);
+            AlarmChannels.sendNotification_notOreo(getApplicationContext(),message,serialNumber);
     }
 
 

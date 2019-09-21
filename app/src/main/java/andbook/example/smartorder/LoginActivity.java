@@ -1,6 +1,7 @@
 package andbook.example.smartorder;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -29,7 +30,7 @@ public class LoginActivity extends AppCompatActivity{
 
     private String check_id = ""; //로그인 아이디
     private String access_pw = ""; //로그인 비밀번호
-    private static String token = ""; //로그인 시 현재토큰
+    private String token = ""; //로그인 시 현재토큰
 
     @Override
     protected void onCreate(Bundle savedInstanceStat) {
@@ -56,7 +57,7 @@ public class LoginActivity extends AppCompatActivity{
                     check_id = login_id.getText().toString(); //아이디 검색을 통하여 해당 아이디에 매칭 되는 비밀번호를 가져오기 위한 변수
                     access_pw = login_pw.getText().toString(); //사용자가 입력한 비밀번호
 
-                    FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(LoginActivity.this,
+                    /*FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(LoginActivity.this,
                             new OnSuccessListener<InstanceIdResult>() {
                         // 현재 토큰을 가져온다.
                         //1. 단말기 변경으로 인해 회원가입은 되어 있으나 단말기의 토큰이 다를 경우
@@ -64,11 +65,15 @@ public class LoginActivity extends AppCompatActivity{
                         @Override
                         public void onSuccess(InstanceIdResult instanceIdResult) {
                             token = instanceIdResult.getToken(); //현재 등록 토큰 확인, 등록된 토큰이 없는 경우 토큰이 업데이트 및 새 발급이 이뤄짐
+                            Log.d("진입 login token",token);
                         }
                     });
                     if(token == null){
                         //등록된 토큰이 없기때문에 새 발급이 이뤄진걸로 판단
                         token=getStaticData.getToken();
+                    }*/
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //회원 가입 시 알람채널 생성
+                        AlarmChannels.createChannel(getApplicationContext());
                     }
                     sendRequest();
                 }
@@ -85,10 +90,10 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     public void sendRequest() {
-        String url = "http://" + getStaticData.getIP() + "/an01/login.jsp";
+        StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/login.jsp");
 
         StringRequest stringRequest = new StringRequest(
-                Request.Method.POST, url,
+                Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -123,17 +128,34 @@ public class LoginActivity extends AppCompatActivity{
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> param = new HashMap<String, String>();
+
+                FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(LoginActivity.this,
+                        new OnSuccessListener<InstanceIdResult>() {
+                            // 현재 토큰을 가져온다.
+                            //1. 단말기 변경으로 인해 회원가입은 되어 있으나 단말기의 토큰이 다를 경우
+                            //2. 같은 아이디로 다른 단말기로 접속했을 경우
+                            @Override
+                            public void onSuccess(InstanceIdResult instanceIdResult) {
+                                token = instanceIdResult.getToken(); //현재 등록 토큰 확인, 등록된 토큰이 없는 경우 토큰이 업데이트 및 새 발급이 이뤄짐
+                                Log.d("진입 login token",token);
+                            }
+                        });
+                if(token == null){
+                    //등록된 토큰이 없기때문에 새 발급이 이뤄진걸로 판단
+                    token=getStaticData.getToken();
+                }
                 param.put("id",check_id);
                 param.put("token",token );
+                Log.d("진입 access token",token);
 
                 return param;
             }
         };
 
-        if (AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+        if (getStaticData.requestQueue == null) {
+            getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
         stringRequest.setShouldCache(false);
-        AppHelper.requestQueue.add(stringRequest);
+        getStaticData.requestQueue.add(stringRequest);
     }
 }

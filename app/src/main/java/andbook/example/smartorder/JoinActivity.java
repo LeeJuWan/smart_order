@@ -30,11 +30,11 @@ public class JoinActivity extends AppCompatActivity {
     private final String pw_regex = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,}"; //비밀번호 정규식
     private final String ph_regex = "^\\d{2,3}-\\d{3,4}-\\d{4}$"; //전화번호 정규식
 
-    private String id;
-    private String market_name;
-    private String market_addr;
-    private String market_phone;
-    private String encryption_pw;
+    private String id = "";
+    private String market_name = "";
+    private String market_addr = "";
+    private String market_phone = "";
+    private String encryption_pw = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceStat) {
@@ -115,10 +115,10 @@ public class JoinActivity extends AppCompatActivity {
 
     public void sendRequest() {
         Log.i("sendRequest", "진입");
+        StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/join.jsp");
 
-        String url = "http://" + getStaticData.getIP() + "/an01/join.jsp";
         StringRequest request = new StringRequest(
-                Request.Method.POST, url,
+                Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -130,7 +130,7 @@ public class JoinActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "이미 해당 아이디는 사용하고 있습니다.", Toast.LENGTH_SHORT).show();
                                 break;
                             case "systemError":
-                                Toast.makeText(getApplicationContext(), "이미 해당 아이디는 사용하고 있습니다.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "시스템 오류입니다. 다시 아이디를 입력해주세요.", Toast.LENGTH_SHORT).show();
                                 break;
                             default:
                                 Intent i = new Intent(getApplicationContext(), OrderListActivity.class);
@@ -152,8 +152,7 @@ public class JoinActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                Log.i("아이디", id);
-                Log.d("join_maker",market_name);
+
                 params.put("id", id);
                 params.put("market_name", market_name);
                 params.put("market_addr", market_addr);
