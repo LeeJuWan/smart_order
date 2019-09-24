@@ -30,11 +30,11 @@ public class JoinActivity extends AppCompatActivity {
     private final String pw_regex = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,}"; //비밀번호 정규식
     private final String ph_regex = "^\\d{2,3}-\\d{3,4}-\\d{4}$"; //전화번호 정규식
 
-    private String id ;
-    private String market_name ;
-    private String market_addr ;
-    private String market_phone ;
-    private String encryption_pw;
+    private String id = "";
+    private String market_name = "";
+    private String market_addr = "";
+    private String market_phone = "";
+    private String encryption_pw = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceStat) {
@@ -89,16 +89,14 @@ public class JoinActivity extends AppCompatActivity {
                 market_phone = join_workplace_phoneNumber.getText().toString();
                 encryption_pw = BCrypt.hashpw(join_pw.getText().toString(), BCrypt.gensalt(10)); //사용할 아이디 암호화 완료
 
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    AlarmChannels.createChannel(getApplicationContext()); //알람채널 생성
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //회원 가입 시 알람채널 생성
+                    AlarmChannels.createChannel(getApplicationContext());
                 }
                 sendRequest();
 
-
-
 //                        } else
 //                             Toast.makeText(getApplicationContext(),"비밀번호를 특수문자+영문자+숫자 조합 8자 이상으로 입력해주세요.",Toast.LENGTH_SHORT).show();
-                                //비밀번호를 올바른 형식으로 입력하지 않았을 시
+                //비밀번호를 올바른 형식으로 입력하지 않았을 시
 //                    } else
 //                        Toast.makeText(getApplicationContext(),"전화번호를 올바르게 입력해주세요",Toast.LENGTH_SHORT).show(); //전화번호를 올바른 형식으로 입력하지 않았을 시
 
@@ -115,47 +113,59 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     public void sendRequest() {
-        Log.i("sendRequest", "진입");
+        Log.i("Join sendRequest", "진입");
+        StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/join.jsp");
 
-        String url = "http://" + GetIP.getIp() + "/an01/join.jsp";
         StringRequest request = new StringRequest(
-                Request.Method.POST,
-                url,
+                Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        String st = response;
-                        Log.i("성공", response);
 
+                        String[] resPonse_split = response.split(" ");
+
+                        switch (resPonse_split[0]) {
+                            case "alreadyID":
+                                Toast.makeText(getApplicationContext(), "이미 해당 아이디는 사용하고 있습니다.", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "systemError":
+                                Toast.makeText(getApplicationContext(), "시스템 오류입니다. 다시 아이디를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                Intent i = new Intent(getApplicationContext(), OrderListActivity.class);
+                                i.putExtra("serialNumber", resPonse_split[1]);
+                                startActivity(i);
+                                finish();
+                                break;
+                        }
                     }
-
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
-                        //println("이러 ->" + error.getMessage());
                     }
                 }
-        ) {
+        )
+        {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params= new HashMap<String, String>();
-                Log.i("아이디",id);
+                Map<String, String> params = new HashMap<String, String>();
+
                 params.put("id", id);
                 params.put("market_name", market_name);
                 params.put("market_addr", market_addr);
                 params.put("market_phone", market_phone);
                 params.put("encryption_pw", encryption_pw);
-                params.put("token",GetIP.getToken()); //토큰 생성 추가 코드
+                params.put("token", getStaticData.getToken());
 
                 return params;
             }
         };
-        if (AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+        if (getStaticData.requestQueue == null) {
+            getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
         request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
+        getStaticData.requestQueue.add(request);
     }
 }

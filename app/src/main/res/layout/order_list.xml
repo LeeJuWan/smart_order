@@ -12,14 +12,16 @@
 
         android:orientation="horizontal">
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/app_name"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_gravity="center"
-            android:text="스마트오더" />
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:text="스마트오더 주문 내역" />
         <Button
-            android:id="@+id/button"
+            android:id="@+id/update"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"

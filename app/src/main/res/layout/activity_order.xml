@@ -39,7 +39,7 @@
             android:inputType="text" />
         <!--주문 진행 버튼-->
         <Button
-            android:id="@+id/Order"
+            android:id="@+id/order"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:scale_width="120"

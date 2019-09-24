@@ -6,10 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-//
-//힙이 아닌 고정메모리에 올라가기에 속도가빠르며 (퍼포먼스) 메모리를 효율적으로 사용 할 수 있다.
-//그러나 고정메모리 이기에 사용되지 않는 static 클래스는 자원낭비 및 메모리 릭을 유발할 수 있다.
-//절대적인 값을 고정할 시 final static 명시
+
 public class MainActivity extends AppCompatActivity{
 
     @Override

@@ -4,6 +4,15 @@ public class OrderListDTO {
     private String order_time;
     private String order_info;
     private int workplace_num;
+    private int table_number;
+
+    public int getTable_number() {
+        return table_number;
+    }
+
+    public void setTable_number(int table_number) {
+        this.table_number = table_number;
+    }
 
     public String getOrder_info() {
         return order_info;
@@ -27,14 +36,5 @@ public class OrderListDTO {
 
     public void setOrder_time(String order_time) {
         this.order_time = order_time;
-    }
-
-    @Override
-    public String toString() {
-        return "OrderListDTO{" +
-                "order_time=" + order_time +
-                ", order_info='" + order_info + '\'' +
-                ", workplace_num=" + workplace_num +
-                '}';
     }
 }

@@ -7,17 +7,7 @@ public class AddressDTO implements Serializable
     private String place_name;
     private String address;
     private String phone_number;
-    private  int workplace_num;
-
-    @Override
-    public String toString() {
-        return "AddressDTO{" +
-                "place_name='" + place_name + '\'' +
-                ", address='" + address + '\'' +
-                ", phone_number='" + phone_number + '\'' +
-                ", workplace_num=" + workplace_num +
-                '}';
-    }
+    private int workplace_num;
 
     public String getPlace_name() {
         return place_name;
