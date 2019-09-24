@@ -28,6 +28,9 @@ public class MyFirebasePushServer {
             @Override
             protected Void doInBackground(Void... voids) {
                 try{
+                    Log.d("진입 FCM Request1",String.valueOf(message));
+                    Log.d("진입 FCM Request2",userDeviceToken);
+                    Log.d("진입 FCM Request3",serialNumber);
                     OkHttpClient client = new OkHttpClient();
                     JSONObject notification = new JSONObject();
                     JSONObject json = new JSONObject();

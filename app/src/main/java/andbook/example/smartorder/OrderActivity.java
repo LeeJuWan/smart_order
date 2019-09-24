@@ -254,7 +254,7 @@ public class OrderActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     //여기서 DB 연결 후, 주문 정보 DB에 주문 내역 삽입 및 해당 단말기 소유자에게 알람 진행
                                     order_Information_Data.append(order_Confirm.getText().toString());
-                                    order_Information_Data.append(tableNumber.getText().toString());
+                                    order_Information_Data.append(tableNumber.getText().toString()).append("번 테이블");
 
                                     sendData(); //음식정보 저장 및 FCM 서버 전송 및 단말기 token GET
 
@@ -316,7 +316,6 @@ public class OrderActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
-
                     }
                 }
         ) {

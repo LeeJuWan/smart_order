@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) { //손님용 주문 리스트로 이동
                 startActivity(new Intent(getApplicationContext(),AddressList.class));
-                finish();
             }
         });
     }

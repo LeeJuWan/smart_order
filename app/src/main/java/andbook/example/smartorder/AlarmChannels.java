@@ -80,7 +80,7 @@ public class AlarmChannels {
                 .setTicker(message)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setWhen(System.currentTimeMillis())
-                .setContentTitle("스마트 주문")
+                .setContentTitle("주문이 들어왔어요! 확인해보세요!")
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
@@ -89,7 +89,7 @@ public class AlarmChannels {
                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS)
                 .setAutoCancel(true);
         bigTextStyle= new Notification.BigTextStyle(builder);
-        bigTextStyle.setBigContentTitle("스마트 주문");
+        bigTextStyle.setBigContentTitle("주문이 들어왔어요! 확인해보세요!");
         bigTextStyle.bigText(message);
         notificationManager.notify((int) (System.currentTimeMillis() / 1000),builder.build());
     }
@@ -111,7 +111,7 @@ public class AlarmChannels {
                 .setTicker(message)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setWhen(System.currentTimeMillis())
-                .setContentTitle("스마트 주문")
+                .setContentTitle("주문이 들어왔어요! 확인해보세요!")
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
@@ -120,7 +120,7 @@ public class AlarmChannels {
                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS)
                 .setAutoCancel(true);
         bigTextStyle= new Notification.BigTextStyle(builder);
-        bigTextStyle.setBigContentTitle("스마트 주문");
+        bigTextStyle.setBigContentTitle("주문이 들어왔어요! 확인해보세요!");
         bigTextStyle.bigText(message);
         notificationManager.notify((int) (System.currentTimeMillis() / 1000),builder.build());
     }

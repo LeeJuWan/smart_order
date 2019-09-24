@@ -114,7 +114,7 @@ public class AddressList extends ListActivity {
     public void sendRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/address.jsp");
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                 String.valueOf(url), null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -124,12 +124,11 @@ public class AddressList extends ListActivity {
                             JSONArray jArray = (JSONArray) response.get("sendData");
 
                             int jArray_Size = jArray.length();
-                            AddressDTO dto = new AddressDTO();
 
                             for (int i = 0; i < jArray_Size; i++) {
 
                                 JSONObject row = jArray.getJSONObject(i);
-
+                                AddressDTO dto = new AddressDTO();
                                 dto.setPlace_name(row.getString("place_name"));
                                 dto.setAddress(row.getString("address"));
                                 dto.setWorkplace_num(row.getInt("workplace_num"));

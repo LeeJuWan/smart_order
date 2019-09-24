@@ -38,13 +38,11 @@ public class OrderListActivity extends ListActivity {
 
 
     private ArrayList<OrderListDTO> items;
-    private String serialNumber;
+    private String serialNumber = "";
     private String token = "";
 
-    //매장 주문 정보 서비스
-    private int market_ORDER_COUNT = 0;
-    private StringBuilder market_Informaion = new StringBuilder();
     private TextView appView;
+    private Button update_btn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +54,7 @@ public class OrderListActivity extends ListActivity {
         Intent i = getIntent();
         serialNumber = i.getExtras().getString("serialNumber");
 
-        Button update_btn = (Button) findViewById(R.id.update);
+        update_btn = (Button) findViewById(R.id.update);
         appView = (TextView)findViewById(R.id.app_name);
 
         //초기 리스트활성화
@@ -71,81 +69,102 @@ public class OrderListActivity extends ListActivity {
         });
     }
 
+
     private void sendRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/list.jsp");
 
-        StringRequest stringRequest = new StringRequest(
-                Request.Method.POST, String.valueOf(url),
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObj = new JSONObject(response);
-                            items = new ArrayList<OrderListDTO>();
-
-                            JSONArray jArray = (JSONArray) jsonObj.get("sendData");
-
-                            int jArray_Size = jArray.length();
-                            OrderListDTO dto = new OrderListDTO();
-
-                            for (int i = 0; i < jArray_Size ; i++) {
-                                JSONObject row = jArray.getJSONObject(i);
-                                market_ORDER_COUNT += 1;
-                                dto.setOrder_time(row.getString("order_time"));
-                                dto.setOrder_info(row.getString("order_info"));
-                                dto.setWorkplace_num(row.getInt("workplace_num"));
-                                dto.setTable_number(Integer.parseInt(row.getString("table_number")));
-
-                                items.add(dto);
-                            }
-                            market_Informaion
-                                    .append("실시간 주문량")
-                                    .append(market_ORDER_COUNT)
-                                    .append("건입니다.");
-                            appView.setText(market_Informaion);
-
-                            OrderAdapter adapter = new OrderAdapter(
-                                    OrderListActivity.this, R.layout.order_row, items);
-                            setListAdapter(adapter);
-                        } catch (JSONException e) {
-                            Log.i("OrderListActivty error","JSONException");
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                    }
-                }
-        ) {
+        new Thread(new Runnable() {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> param = new HashMap<String, String>();
+            public void run() {
+                try {
+                    FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(OrderListActivity.this,
+                            new OnSuccessListener<InstanceIdResult>() {
+                                // 현재 토큰을 가져온다.
+                                @Override
+                                public void onSuccess(InstanceIdResult instanceIdResult) {
+                                    token = instanceIdResult.getToken(); //현재 등록 토큰 확인, 등록된 토큰이 없는 경우 토큰이 업데이트 및 새 발급이 이뤄짐
+                                    Log.d("진입 OrderListAct token", token);
+                                }
+                            });
+                    if (token == null) {
+                        //등록된 토큰이 없기때문에 새 발급이 이뤄진걸로 판단
+                        token = getStaticData.getToken();
+                    }
 
-                FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(OrderListActivity.this,
-                        new OnSuccessListener<InstanceIdResult>() {
-                            // 현재 토큰을 가져온다.
-                            @Override
-                            public void onSuccess(InstanceIdResult instanceIdResult) {
-                                token = instanceIdResult.getToken(); //현재 등록 토큰 확인, 등록된 토큰이 없는 경우 토큰이 업데이트 및 새 발급이 이뤄짐
-                                Log.d("진입 OrderListAct token",token);
+                    Thread.sleep(100); //토큰을 받아오는 시간을 고려하여 잠시 sleep
+
+                    StringRequest stringRequest = new StringRequest(
+                            Request.Method.POST, String.valueOf(url),
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    try {
+
+                                        JSONObject jsonObj = new JSONObject(response);
+                                        items = new ArrayList<OrderListDTO>();
+
+                                        //매장 주문 정보
+                                        int market_ORDER_COUNT = 0; //매장 주문 건수
+                                        StringBuilder market_Informaion = new StringBuilder(); //주문 건수 담는 변수
+                                        JSONArray jArray = (JSONArray)jsonObj.get("sendData"); //매장 주문 내역
+
+                                        int jArray_Size = jArray.length();
+
+                                        for (int i = 0; i < jArray_Size ; i++) {
+
+                                            JSONObject row = jArray.getJSONObject(i);
+                                            OrderListDTO dto = new OrderListDTO();
+                                            market_ORDER_COUNT += 1;
+                                            dto.setOrder_time(row.getString("order_time"));
+                                            dto.setOrder_info(row.getString("order_info"));
+                                            dto.setWorkplace_num(row.getInt("workplace_num"));
+                                            dto.setTable_number(Integer.parseInt(row.getString("table_number")));
+
+                                            items.add(dto);
+                                        }
+                                        market_Informaion
+                                                .append("실시간 주문량")
+                                                .append(market_ORDER_COUNT)
+                                                .append("건입니다.");
+                                        appView.setText(market_Informaion);
+
+                                        OrderAdapter adapter = new OrderAdapter(
+                                                OrderListActivity.this, R.layout.order_row, items);
+                                        setListAdapter(adapter);
+                                    } catch (JSONException e) {
+                                        Log.i("OrderListActivty error","JSONException");
+                                    }
+                                }
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    error.printStackTrace();
+                                }
                             }
-                        });
-                if(token == null){
-                    //등록된 토큰이 없기때문에 새 발급이 이뤄진걸로 판단
-                    token=getStaticData.getToken();
+                    ) {
+                        @Override
+                        protected Map<String, String> getParams() throws AuthFailureError {
+                            Map<String, String> param = new HashMap<String, String>();
+
+                            param.put("serialNumber",serialNumber);
+                            param.put("token",token);
+                            Log.d("진입 access token",token);
+                            Log.d("진입 access serialNumber",serialNumber);
+                            return param;
+                        }
+                    };
+                    if (getStaticData.requestQueue == null) {
+                        getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
+                    }
+                    stringRequest.setShouldCache(false);
+                    getStaticData.requestQueue.add(stringRequest);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                param.put("serialNumber", serialNumber);
-                param.put("token",token);
-                return param;
             }
-        };
-        if (getStaticData.requestQueue == null) {
-            getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
-        stringRequest.setShouldCache(false);
-        getStaticData.requestQueue.add(stringRequest);
+        }).start();
     }
 
     class OrderAdapter extends ArrayAdapter<OrderListDTO> {
