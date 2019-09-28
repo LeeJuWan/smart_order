@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <dimen name="adminBtnWidth">130dp</dimen>
+    <dimen name="adminBtnHeigh">100dp</dimen>
+    <dimen name="adminBtnTop">170dp</dimen>
+    <dimen name="adminBtnLeft">10dp</dimen>
+</resources>

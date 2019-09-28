@@ -20,18 +20,19 @@ public class MainActivity extends AppCompatActivity{
         Button admin_flow = (Button)findViewById(R.id.admin_Flow);
         Button custom_flow = (Button)findViewById(R.id.customer_Flow);
 
+        // 관리자용 버튼
         admin_flow.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { //로그인으로 이동
+            public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext(),LoginActivity.class));
-                finish();
             }
         });
 
+        // 손님용 버튼
         custom_flow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { //손님용 주문 리스트로 이동
-                startActivity(new Intent(getApplicationContext(),AddressList.class));
+                startActivity(new Intent(getApplicationContext(),AddressListActivity.class));
             }
         });
     }

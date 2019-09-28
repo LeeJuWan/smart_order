@@ -4,10 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="andbook.example.smartorder">
 
+    <!-- RECORD_AUDIO (음성 인식을 위한 권한) -->
+    <!-- INTERNET (네트워크 통신을 위한 권한) -->
+    <!-- VIBRATE (알람 진동을 위한 권한) -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE"/>
-
 
     <application
 
@@ -18,13 +20,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".SplashActivity">
+
+        <activity android:name=".SplashActivity"
+            android:theme="@style/SplashTheme"
+            android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddressList" />
+
+        <activity android:name=".AddressListActivity" />
         <activity android:name=".OrderListActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".LoginActivity" />
@@ -32,10 +39,10 @@
         <activity android:name=".OrderActivity" />
 
         <service
-            android:name=".MyFirebaseMessagingService"
+            android:name="firebase_service.MyFirebaseMessagingService"
             android:stopWithTask="false"
             android:enabled="true"
-            android:exported="false">
+            android:exported="false"> <!-- 외부 접근 방지 -->
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

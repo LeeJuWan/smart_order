@@ -34,25 +34,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import data_source.getStaticData;
+import dto.AddressDTO;
+import firebase_service.MyFirebasePushServer;
 
 
 public class OrderActivity extends AppCompatActivity {
 
+    // 주문정보 DTO
+    private AddressDTO addrDTO;
+    // 주문정보
+    private StringBuffer order_Information_Data;
     private EditText tableNumber;
     private EditText order_Confirm;
     private Button order_Btn;
 
     // 콜백 호출시 requestcode로 넘어가는 구분자
     private final int PERMISSIONREQUEST_RESULT = 100;
-    //음성 인식을 위해 선언
+
+    // 음성 인식을 위해 선언
     private Intent intent;
     private SpeechRecognizer recognizer;
 
-    //주문정보 DTO
-    private AddressDTO addrDTO;
-    //주문정보
-    private StringBuffer order_Information_Data;
-    //FCM 푸시를 위한 Server 객체
+    // FCM 알람을 위한 Server 객체
     private MyFirebasePushServer pushServer;
 
     @Override
@@ -66,26 +70,26 @@ public class OrderActivity extends AppCompatActivity {
         tableNumber = (EditText) findViewById(R.id.table_num);
         order_Btn = (Button) findViewById(R.id.order);
 
-        //값 받아주기
+        // AddressListActivity의 전달 값 받아주기
         Intent getIntent = getIntent();
         addrDTO = (AddressDTO) getIntent.getSerializableExtra("DTO");
 
-        //음성인식을 위한 intent & recognizer initializing
-        intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH); //음성 인식 intent 생성
+        // 음성인식을 위한 intent & recognizer initializing
+        intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH); // 음성 인식 intent 생성
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName()); // 데이터 설정
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR"); //음성 인식 언어 설정
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR"); // 음성 인식 언어 설정
 
-
+        // 음식주문 진행 버튼
         order_Btn.setOnClickListener(new View.OnClickListener() {
-            @Override //음식주문 진행
+            @Override
             public void onClick(View v) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    //마시멜로우 이상 버전일 시 권한 확인 진행
+                    // 마시멜로우 이상 버전일 시 권한 확인 진행
                     if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
                     {
-                        //권한 허용 시 음식 주문 그대로 진행
+                        // 권한 허용 시 음식 주문 그대로 진행 & 테이블 번호 입력 검증 진행
                         if (tableNumber.getText().toString() == null || "".equals(tableNumber.getText().toString())) {
-                            new AlertDialog.Builder(OrderActivity.this) //테이블 번호 미입력 에러
+                            new AlertDialog.Builder(OrderActivity.this)
                                     .setCancelable(false)
                                     .setTitle("테이블 번호 미입력")
                                     .setIcon(R.mipmap.ic_launcher)
@@ -98,14 +102,14 @@ public class OrderActivity extends AppCompatActivity {
                                                 }
                                             }).show();
                         } else {
-                            recognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext()); //음성인식 객체
-                            recognizer.setRecognitionListener(listener); //음성인식 리스너 등록
+                            recognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext()); // 음성인식 객체
+                            recognizer.setRecognitionListener(listener); // 음성인식 리스너 등록
                             try {
-                                recognizer.startListening(intent); //음성 인식 시작
+                                recognizer.startListening(intent); // 음성 인식 시작
                             } catch (SecurityException e) {
-                                System.err.println("OrderActivty SecurityException error");
+                                Log.i("OrderActivty","SecurityException error");
                             }
-                            new AlertDialog.Builder(OrderActivity.this) //정보 제공 출력
+                            new AlertDialog.Builder(OrderActivity.this)
                                     .setCancelable(false)
                                     .setTitle("주문 진행")
                                     .setIcon(R.mipmap.ic_launcher)
@@ -121,12 +125,12 @@ public class OrderActivity extends AppCompatActivity {
                                             }).show();
                         }
                     } else {
-                        CheckPermission(); //권한 미허용 시 권한을 얻게함
+                        CheckPermission(); // 권한 미허용 시 권한을 얻게함
                     }
                 } else {
-                    //마시멜로우 버전 미만일 시 권한 확인 없이 진행
+                    // 마시멜로우 버전 미만일 시 권한 확인 없이 진행  & 테이블 번호 입력 검증 진행
                     if (tableNumber.getText().toString() == null || "".equals(tableNumber.getText().toString())) {
-                        new AlertDialog.Builder(OrderActivity.this) //테이블 번호 미입력 에러
+                        new AlertDialog.Builder(OrderActivity.this)
                                 .setCancelable(false)
                                 .setTitle("테이블 번호 미입력")
                                 .setIcon(R.mipmap.ic_launcher)
@@ -139,14 +143,14 @@ public class OrderActivity extends AppCompatActivity {
                                             }
                                         }).show();
                     } else {
-                        recognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext()); //음성인식 객체
-                        recognizer.setRecognitionListener(listener); //음성인식 리스너 등록
+                        recognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext()); // 음성인식 객체
+                        recognizer.setRecognitionListener(listener); // 음성인식 리스너 등록
                         try {
-                            recognizer.startListening(intent); //음성 인식 시작
+                            recognizer.startListening(intent); // 음성 인식 시작
                         } catch (SecurityException e) {
-                            System.err.println("OrderActivty SecurityException error");
+                            Log.i("OrderActivty","SecurityException error");
                         }
-                        new AlertDialog.Builder(OrderActivity.this) //정보 제공 출력
+                        new AlertDialog.Builder(OrderActivity.this)
                                 .setCancelable(false)
                                 .setTitle("주문 진행")
                                 .setIcon(R.mipmap.ic_launcher)
@@ -166,9 +170,11 @@ public class OrderActivity extends AppCompatActivity {
         });
     }
 
+    // 위의 recognizer.setRecognitionListener(listener) 통해 리스너 등록 시
+    // 아래의 콜백 메서드 호출
     private RecognitionListener listener = new RecognitionListener() {
         @Override
-        public void onReadyForSpeech(Bundle params) {// 사용자가 말하기 시작할 준비가되면 호출됩니다.
+        public void onReadyForSpeech(Bundle params) { // 사용자가 말하기 시작할 준비가되면 호출됩니다.
             Toast.makeText(getApplicationContext(), "주문을 시작해주세요 !", Toast.LENGTH_SHORT).show();
         }
 
@@ -193,7 +199,7 @@ public class OrderActivity extends AppCompatActivity {
         @Override
         public void onError(int error) {  // 네트워크 또는 인식 오류가 발생했을 때 호출 진행
             StringBuilder message = new StringBuilder();
-            //음성 인식 주문 오류 추적 코드
+            // 음성 인식 주문 오류 추적 코드
             switch (error) {
                 case SpeechRecognizer.ERROR_AUDIO:
                     message.append("오디오 오류");
@@ -230,19 +236,20 @@ public class OrderActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         }
 
+        // 인식 결과가 준비되면 호출
         @Override
-        public void onResults(Bundle results) { // 인식 결과가 준비되면 호출
+        public void onResults(Bundle results) {
             // 아래 코드는 음성인식된 결과를 ArrayList로 모아오기
             String voice_value = "";
 
             ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             voice_value = matches != null ? matches.get(0) : "음성인식 오류";
 
-            order_Confirm = new EditText(getApplicationContext()); //음성 주문 시 ,수정가능한 형태로 변환 진행
-            order_Confirm.setText(voice_value); //음성 주문 입력 값 EditText에 삽입
+            order_Confirm = new EditText(getApplicationContext()); // 음성 주문 시 수정가능한 형태로 변환 진행
+            order_Confirm.setText(voice_value); // 음성 주문 입력 값 EditText에 삽입
             order_Information_Data = new StringBuffer();
 
-            //여기서 음성결과 출력
+            // 여기서 음성결과 출력
             new AlertDialog.Builder(OrderActivity.this)
                     .setCancelable(false)
                     .setTitle("주문 결과 확인")
@@ -252,14 +259,15 @@ public class OrderActivity extends AppCompatActivity {
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    //여기서 DB 연결 후, 주문 정보 DB에 주문 내역 삽입 및 해당 단말기 소유자에게 알람 진행
+                                    // 음성 인식 정보를 append 진행
                                     order_Information_Data.append(order_Confirm.getText().toString());
                                     order_Information_Data.append(tableNumber.getText().toString()).append("번 테이블");
 
+                                    // 여기서 DB 연결 후, 주문 정보 DB에 주문 내역 저장 및 해당 단말기 소유자에게 알람 진행
                                     sendData(); //음식정보 저장 및 FCM 서버 전송 및 단말기 token GET
 
                                     dialog.dismiss();
-                                    stopSpeechRecognizer(); //음성 주문 완료로 인한 , 음성 객체 반환
+                                    stopSpeechRecognizer(); // 음성 주문 완료로 인한 , 음성 객체 반환
                                 }
                             })
                     .setNegativeButton("주문 취소",
@@ -268,7 +276,7 @@ public class OrderActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     Toast.makeText(getApplicationContext(), "다시 주문 하시겠어요?", Toast.LENGTH_SHORT).show();
                                     dialog.dismiss();
-                                    stopSpeechRecognizer(); //음성 주문 취소로 인한 , 음성 객체 반환
+                                    stopSpeechRecognizer(); // 음성 주문 취소로 인한 , 음성 객체 반환
                                 }
                             }).show();
 
@@ -283,10 +291,10 @@ public class OrderActivity extends AppCompatActivity {
         }
     };
 
-    //음성 인식 종료 시 객체 반환 함수
+    // 음성 인식 종료 시 객체 반환 함수
     private void stopSpeechRecognizer() {
-        /*음성 인식 객체를 종료 하지않으면 메모리에 남아있게 되며 그와동시에 다른 음성 인식이 죽기때문에
-         * 항상 StopListing을 해주어 null로 변환 시킨다.*/
+        /* 음성 인식 객체를 종료 하지않으면 메모리에 남아있게 되며 그와동시에 다른 음성 인식이 죽기때문에
+         * 항상 StopListing을 해주어 null로 변환 시킨다. */
         if (recognizer != null) {
             recognizer.destroy();
             recognizer.cancel();
@@ -294,6 +302,7 @@ public class OrderActivity extends AppCompatActivity {
         }
     }
 
+    // 사용자의 음성 주문 정보를 해당 매장의 주문 정보DB에 저장 하기위한 메서드
     private void sendData() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/insert_Orderlist.jsp");
 
@@ -309,6 +318,7 @@ public class OrderActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), tableNumber.getText().toString() + "번 테이블 "
                                     + order_Confirm.getText().toString() + "주문 오류 다시 시도 해주세요.", Toast.LENGTH_LONG).show();
                         }
+                        // 해당 관리자의 단말기로 주문 알람을 전송하기 위해 Token 값 Get 진행
                         sendTokenRequest();
                     }
                 },
@@ -332,10 +342,14 @@ public class OrderActivity extends AppCompatActivity {
         if (getStaticData.requestQueue == null) {
             getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
-        stringRequest.setShouldCache(false); // 이전 결과가 있더라도 새로 요청해서 응답을 보여줌
+
+        // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
+        // 항상 새로운 데이터를 위해 false
+        stringRequest.setShouldCache(false);
         getStaticData.requestQueue.add(stringRequest);
     }
 
+    // 주문을 받은 해당 매장의 관리자의 스마트 폰 Token을 얻기 위한 메서드
     private void sendTokenRequest() {
         StringBuffer url = new StringBuffer("http://"+getStaticData.getIP()+"/an01/getSerial_setToken.jsp");
 
@@ -344,9 +358,10 @@ public class OrderActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //매장 주인 토큰 정보 얻어오기 response
+                        // 매장 관리자 토큰 정보 response 받음
                         pushServer = new MyFirebasePushServer();
-                        pushServer.sendFCMRequest(order_Information_Data, response ,String.valueOf(addrDTO.getWorkplace_num()));
+                        // FCM 서버에 해당 매장의 관리자 Token , 주문 정보, 매장 고유키 담아 보내기
+                        pushServer.sendFCMRequest(order_Information_Data, response , String.valueOf(addrDTO.getWorkplace_num()) );
                     }
                 },
                 new Response.ErrorListener() {
@@ -372,10 +387,10 @@ public class OrderActivity extends AppCompatActivity {
         getStaticData.requestQueue.add(stringRequest);
     }
 
-    //퍼미션 권한 진행 함수
+    // 퍼미션 권한 진행 메서드
     private void CheckPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
-            //사용자의 최초 퍼미션 허용을 확인         -true: 사용자 퍼미션 거부 , -false: 사용자 동의 미 필요
+            // 사용자의 최초 퍼미션 허용을 확인
             if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
                 Toast.makeText(getApplicationContext(), "음성 주문을 위해서는 다음의 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(this,
@@ -385,7 +400,7 @@ public class OrderActivity extends AppCompatActivity {
         }
     }
 
-    //permission call back 메서드
+    // 퍼미션 콜백 메서드
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResult) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResult);
@@ -394,7 +409,7 @@ public class OrderActivity extends AppCompatActivity {
             if (grantResult.length > 0) {
                 for (int aGrantResult : grantResult) {
                     if (aGrantResult == PackageManager.PERMISSION_DENIED) {
-                        //권한이 하나라도 거부 될 시
+                        // 권한이 하나라도 거부 될 시
                         new AlertDialog.Builder(this)
                                 .setTitle("사용 권한의 문제발생")
                                 .setIcon(R.mipmap.ic_launcher)

@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <LinearLayout
+
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:orientation="horizontal">
 
         <EditText
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:id="@+id/seach_line"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="대전 대덕구 중리동 맥주창고" />
+            android:hint="ex) 대전 대덕구 중리동 맥주창고" />
+
     </LinearLayout>
 
     <ListView
@@ -24,4 +30,13 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:id="@android:id/list"/>
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:text="제공되는 매장을 클릭해주세요" />
+
 </LinearLayout>

@@ -2,10 +2,12 @@ package andbook.example.smartorder;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,12 +36,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import data_source.getStaticData;
+import dto.OrderListDTO;
+import otherUtill.Authority;
+import otherUtill.BackPressCloseHandler;
+
 public class OrderListActivity extends ListActivity {
 
+    // 두 번 빠르게 누를 시 종료하기 위한 백버튼 핸들러
+    private BackPressCloseHandler backPressCloseHandler;
 
+    // 매장 관련 정보
     private ArrayList<OrderListDTO> items;
     private String serialNumber = "";
     private String token = "";
+
+    private boolean login = false;
+
+    // 스레드 무한루프 break flag
+    private boolean thread_StopFlag = true;
 
     private TextView appView;
     private Button update_btn;
@@ -49,27 +64,54 @@ public class OrderListActivity extends ListActivity {
         setContentView(R.layout.order_list);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN); //상태바 제거
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); // 상태바 제거
+
+        backPressCloseHandler = new BackPressCloseHandler(OrderListActivity.this);
+
 
         Intent i = getIntent();
         serialNumber = i.getExtras().getString("serialNumber");
+        login = i.getExtras().getBoolean("login");
 
         update_btn = (Button) findViewById(R.id.update);
         appView = (TextView)findViewById(R.id.app_name);
 
-        //초기 리스트활성화
+        // 리스트활성화
         sendRequest();
 
         update_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //리스트 업데이트 새로고침
+                // 리스트 업데이트 새로고침
                 sendRequest();
             }
         });
     }
 
+    // 중복 체크
+    @Override
+    protected void onResume() {
+        Log.i("onResume", "test");
+        Authority.isAuthority(getApplicationContext());
+        super.onResume();
 
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        // 액티비티 정지 시 쓰레드 무한 루프 풀기 위해 flag값 false
+        thread_StopFlag = false;
+    }
+
+    // 뒤로가기 체크
+    @Override
+    public void onBackPressed(){
+        backPressCloseHandler.onBackPressed();
+    }
+
+
+    // 관리자가 자신의 매장 주문 내역을 DB에서 확인하기 위한 메서드
     private void sendRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/list.jsp");
 
@@ -82,16 +124,17 @@ public class OrderListActivity extends ListActivity {
                                 // 현재 토큰을 가져온다.
                                 @Override
                                 public void onSuccess(InstanceIdResult instanceIdResult) {
-                                    token = instanceIdResult.getToken(); //현재 등록 토큰 확인, 등록된 토큰이 없는 경우 토큰이 업데이트 및 새 발급이 이뤄짐
+                                    // 현재 등록 토큰 확인, 등록된 토큰이 없는 경우 토큰이 업데이트 및 새 발급이 이뤄짐
+                                    token = instanceIdResult.getToken();
                                     Log.d("진입 OrderListAct token", token);
                                 }
                             });
                     if (token == null) {
-                        //등록된 토큰이 없기때문에 새 발급이 이뤄진걸로 판단
+                        // 등록된 토큰이 없기때문에 새 발급이 이뤄진걸로 판단
                         token = getStaticData.getToken();
                     }
 
-                    Thread.sleep(100); //토큰을 받아오는 시간을 고려하여 잠시 sleep
+                    Thread.sleep(100); // 토큰을 받아오는 시간을 고려하여 잠시 sleep
 
                     StringRequest stringRequest = new StringRequest(
                             Request.Method.POST, String.valueOf(url),
@@ -103,10 +146,10 @@ public class OrderListActivity extends ListActivity {
                                         JSONObject jsonObj = new JSONObject(response);
                                         items = new ArrayList<OrderListDTO>();
 
-                                        //매장 주문 정보
-                                        int market_ORDER_COUNT = 0; //매장 주문 건수
-                                        StringBuilder market_Informaion = new StringBuilder(); //주문 건수 담는 변수
-                                        JSONArray jArray = (JSONArray)jsonObj.get("sendData"); //매장 주문 내역
+                                        // 매장 주문 정보
+                                        int market_ORDER_COUNT = 0; // 매장 주문 건수
+                                        StringBuilder market_Informaion = new StringBuilder(); // 주문 건수 담는 변수
+                                        JSONArray jArray = (JSONArray)jsonObj.get("sendData"); // 매장 주문 내역
 
                                         int jArray_Size = jArray.length();
 
@@ -115,6 +158,7 @@ public class OrderListActivity extends ListActivity {
                                             JSONObject row = jArray.getJSONObject(i);
                                             OrderListDTO dto = new OrderListDTO();
                                             market_ORDER_COUNT += 1;
+                                            // 매장 주문 정보 담기
                                             dto.setOrder_time(row.getString("order_time"));
                                             dto.setOrder_info(row.getString("order_info"));
                                             dto.setWorkplace_num(row.getInt("workplace_num"));
@@ -131,8 +175,10 @@ public class OrderListActivity extends ListActivity {
                                         OrderAdapter adapter = new OrderAdapter(
                                                 OrderListActivity.this, R.layout.order_row, items);
                                         setListAdapter(adapter);
+
+                                        login=false;
                                     } catch (JSONException e) {
-                                        Log.i("OrderListActivty error","JSONException");
+                                        Log.i("OrderListActivty error","JSONException error");
                                     }
                                 }
                             },
@@ -147,8 +193,12 @@ public class OrderListActivity extends ListActivity {
                         protected Map<String, String> getParams() throws AuthFailureError {
                             Map<String, String> param = new HashMap<String, String>();
 
+                            // OrderListActivity에서는 token값을 주기적으로 확인하여 주문 알람을 받을 단말기를
+                            // DB로 보내 꾸준히 업데이트 시켜줌
+                            // 매장의 식별키를 보내어 해당 관리자를 식별하여 token 업데이트
                             param.put("serialNumber",serialNumber);
                             param.put("token",token);
+                            param.put("login",String.valueOf(login));
                             Log.d("진입 access token",token);
                             Log.d("진입 access serialNumber",serialNumber);
                             return param;
@@ -157,11 +207,23 @@ public class OrderListActivity extends ListActivity {
                     if (getStaticData.requestQueue == null) {
                         getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
                     }
-                    stringRequest.setShouldCache(false);
-                    getStaticData.requestQueue.add(stringRequest);
 
+                    while( thread_StopFlag )
+                    {
+                        // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
+                        // 항상 새로운 데이터를 위해 false
+                        stringRequest.setShouldCache(false);
+                        getStaticData.requestQueue.add(stringRequest);
+                        try{
+                            // 5초마다 네트워킹을 통해 DB에 저장된 주문 내역을 가져와 실시간으로
+                            // 주문 정보 내역 자동 리스트업 진행
+                            Thread.sleep(5000);
+                        }catch (Exception e){
+                            Log.i("진입 OrderList While","Exception error");
+                        }
+                    }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Log.i("OrderListActivty error","InterruptedException error");
                 }
             }
         }).start();
@@ -191,16 +253,34 @@ public class OrderListActivity extends ListActivity {
 
                 orderInfo.append(dto.getOrder_info()).append("\n");
                 orderInfo.append(dto.getOrder_time()).append("\n");
-                orderInfo.append(dto.getWorkplace_num()).append("\n");
-                orderInfo.append(dto.getTable_number());
+                orderInfo.append(dto.getTable_number()).append(" 번 테이블");
 
                 order_info.setText(orderInfo);
 
+                // 주문 정보를 삭제 하기 위한 버튼
                 delete_btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        OrderListDTO dto = items.get(position);
-                        deleteList(dto);
+                        // 삭제 전 확인 절차 진행
+                        new AlertDialog.Builder(OrderListActivity.this)
+                                .setCancelable(false)
+                                .setTitle("주문 완료")
+                                .setIcon(R.mipmap.ic_launcher)
+                                .setMessage("POS기기에 주문 내용을 입력하셨나요? 하셨다면 주문 완료를 눌러주세요.")
+                                .setPositiveButton("주문완료", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int i) {
+                                        OrderListDTO dto = items.get(position);
+                                        deleteRequest(dto);
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .setNegativeButton("돌아가기", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int i) {
+                                        dialog.dismiss();
+                                    }
+                                }).show();
                     }
                 });
             }
@@ -208,8 +288,8 @@ public class OrderListActivity extends ListActivity {
         }
     }
 
-
-    private void deleteList(final OrderListDTO dto) {
+    // 매장 관리자가 해당 주문 내역을 삭제할 시 DB에 해당 데이터를 삭제하기 위한 메서드
+    private void deleteRequest(final OrderListDTO dto) {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/delete_list.jsp");
 
         StringRequest stringRequest = new StringRequest(
@@ -217,7 +297,7 @@ public class OrderListActivity extends ListActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //삭제응답을 받고난 후, 리스트 최신화를 위한 데이터 다시 불러오기.
+                        //삭제응답을 받고난 후 리스트 최신화를 위한 데이터 다시 불러오기
                         sendRequest();
                     }
                 },
@@ -242,6 +322,9 @@ public class OrderListActivity extends ListActivity {
         if (getStaticData.requestQueue == null) {
             getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
+
+        // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
+        // 항상 새로운 데이터를 위해 false
         stringRequest.setShouldCache(false);
         getStaticData.requestQueue.add(stringRequest);
     }

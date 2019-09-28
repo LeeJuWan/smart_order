@@ -3,6 +3,7 @@ package andbook.example.smartorder;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 
 public class SplashActivity extends Activity {
@@ -12,13 +13,13 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceStat);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN); //상태바 제거
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); // 상태바 제거
         try{
-            Thread.sleep(3000);
+            Thread.sleep(1000);
+            startActivity(new Intent(this,MainActivity.class));
+            finish();
         }catch (InterruptedException e){
-            System.err.println("Splash InterruptedException error");
+            Log.i("SplashActivty","InterruptedException error");
         }
-        startActivity(new Intent(this,MainActivity.class));
-        finish();
     }
 }
