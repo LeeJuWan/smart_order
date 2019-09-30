@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.NetworkOnMainThreadException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -31,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -218,12 +220,12 @@ public class OrderListActivity extends ListActivity {
                             // 5초마다 네트워킹을 통해 DB에 저장된 주문 내역을 가져와 실시간으로
                             // 주문 정보 내역 자동 리스트업 진행
                             Thread.sleep(5000);
-                        }catch (Exception e){
-                            Log.i("진입 OrderList While","Exception error");
+                        }catch (RuntimeException e){
+                            Log.i("OrderListActivity","RuntimeException error");
                         }
                     }
                 } catch (InterruptedException e) {
-                    Log.i("OrderListActivty error","InterruptedException error");
+                    Log.i("OrderListActivty","InterruptedException error");
                 }
             }
         }).start();

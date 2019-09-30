@@ -15,6 +15,10 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug { // 디버그 난독화
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
     }
     compileOptions { // okhttp3:okhttp:3.14.1 종속성 문제 해결 코드
         sourceCompatibility JavaVersion.VERSION_1_8
