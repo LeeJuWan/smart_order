@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -231,7 +232,7 @@ public class OrderListActivity extends ListActivity {
         }).start();
     }
 
-    class OrderAdapter extends ArrayAdapter<OrderListDTO> {
+    class OrderAdapter extends ArrayAdapter<OrderListDTO>{
 
         OrderAdapter(Context context, int resource, List<OrderListDTO> objects) {
             super(context, resource, objects);

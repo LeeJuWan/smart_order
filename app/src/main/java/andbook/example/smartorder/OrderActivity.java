@@ -260,8 +260,11 @@ public class OrderActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     // 음성 인식 정보를 append 진행
-                                    order_Information_Data.append(order_Confirm.getText().toString());
-                                    order_Information_Data.append(tableNumber.getText().toString()).append("번 테이블");
+                                    order_Information_Data
+                                            .append(order_Confirm.getText().toString())
+                                            .append("\n")
+                                            .append(tableNumber.getText().toString())
+                                            .append("번 테이블 주문이 들어왔어요!");
 
                                     // 여기서 DB 연결 후, 주문 정보 DB에 주문 내역 저장 및 해당 단말기 소유자에게 알람 진행
                                     sendData(); //음식정보 저장 및 FCM 서버 전송 및 단말기 token GET
@@ -391,12 +394,18 @@ public class OrderActivity extends AppCompatActivity {
     private void CheckPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
             // 사용자의 최초 퍼미션 허용을 확인
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
                 Toast.makeText(getApplicationContext(), "음성 주문을 위해서는 다음의 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.RECORD_AUDIO},
                         PERMISSIONREQUEST_RESULT);
             }
+            else{
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        PERMISSIONREQUEST_RESULT);
+            }
+
         }
     }
 

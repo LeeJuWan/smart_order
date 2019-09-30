@@ -19,3 +19,5 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-dontwarn okhttp3.** #okhttp3 관련 예외처리
+-dontwarn okio.** #okio 관련 예외처리

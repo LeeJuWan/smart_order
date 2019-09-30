@@ -1,5 +1,6 @@
 package otherUtill;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -58,7 +59,7 @@ public class AlarmChannels {
         // 채널 생성: 메시지
         NotificationChannel channelMessage = new NotificationChannel(
                 Channel.MESSAGE_ID, Channel.MESSAGE_NAME,
-                android.app.NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationManager.IMPORTANCE_HIGH); // 알람 헤드업 0
         channelMessage.setDescription(Channel.MESSAGE_DESC); // 채널 설명
         channelMessage.setGroup(Channel.GROUP_ID); // 속해있는 채널 그룹 ID
         channelMessage.enableLights(true); // LED 점멸 기능
@@ -73,7 +74,9 @@ public class AlarmChannels {
     public static  void sendNotification(Context context, @Channel String channel ,String message, String serialNumber){
         intent = new Intent(context,OrderListActivity.class);
         intent.putExtra("serialNumber",serialNumber);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        // 기존의 같은 View를 보고있다가 알람을 누르면 Stack에서 기존 Activity 재사용 진행
+
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,
                 PendingIntent.FLAG_ONE_SHOT); // FLAG_ONE_SHOT 일회용 알람
@@ -89,8 +92,9 @@ public class AlarmChannels {
                 .setContentText(message) // 알람 내용
                 .setSound(defaultSoundUri) // 알람 기본 사운드
                 .setContentIntent(pendingIntent) // 알람 누를 시 인텐트 진행
-                .setPriority(Notification.PRIORITY_MAX) // 알람 헤드업
-                .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS) // 알람 기본 진동 및 점멸등
+                .setPriority(Notification.PRIORITY_HIGH) // 알람 헤드업 1
+                .setFullScreenIntent(pendingIntent,true) // 알람 헤드업 2
+                .setDefaults(Notification.DEFAULT_ALL) // 알람 기본 진동 및 소리
                 .setAutoCancel(true); //알람 누를 시 자동으로 삭제
         bigTextStyle= new Notification.BigTextStyle(builder);
         bigTextStyle.setBigContentTitle("주문이 들어왔어요! 확인해보세요!");
@@ -103,7 +107,8 @@ public class AlarmChannels {
     public static void sendNotification_notOreo(Context context , String message , String serialNumber){
         Intent intent = new Intent(context,OrderListActivity.class);
         intent.putExtra("serialNumber",serialNumber);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        // 기존의 같은 View를 보고있다가 알람을 누르면 Stack에서 기존 Activity 재사용 진행
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,
                 PendingIntent.FLAG_ONE_SHOT); // FLAG_ONE_SHOT 일회용 알람
@@ -119,8 +124,9 @@ public class AlarmChannels {
                 .setContentText(message) // 알람 내용
                 .setSound(defaultSoundUri) // 알람 기본 사운드
                 .setContentIntent(pendingIntent) // 알람 누를 시 인텐트 진행
-                .setPriority(Notification.PRIORITY_MAX) // 알람 헤드업
-                .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS) // 알람 기본 진동 및 점멸등
+                .setPriority(Notification.PRIORITY_HIGH) // 알람 헤드업 1
+                .setFullScreenIntent(pendingIntent,true) // 알람 헤드업 2
+                .setDefaults(Notification.DEFAULT_ALL) // 알람 기본 진동 및 소리
                 .setAutoCancel(true); //알람 누를 시 자동으로 삭제
         bigTextStyle= new Notification.BigTextStyle(builder);
         bigTextStyle.setBigContentTitle("주문이 들어왔어요! 확인해보세요!");
