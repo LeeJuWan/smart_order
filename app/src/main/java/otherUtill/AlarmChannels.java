@@ -1,6 +1,5 @@
 package otherUtill;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -72,14 +71,18 @@ public class AlarmChannels {
 
     // 오레오 이상 버전
     @TargetApi(Build.VERSION_CODES.O)
-    public static  void sendNotification(Context context, @Channel String channel ,String message, String serialNumber){
+    public static  void sendNotification(Context context, @Channel String channel ,String message, String serialNumber)
+    {
         intent = new Intent(context,OrderListActivity.class);
-        intent.putExtra("serialNumber",serialNumber); // 매장 고유키 전달
+        intent.putExtra("serialNumber",serialNumber); // 매장 고유 키 전달
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
         // 기존의 같은 View를 보고있다가 알람을 누르면 Stack에서 기존 Activity 재사용 진행
 
-        getStaticData.stringRequest.setShouldCache(false);
-        getStaticData.requestQueue.add(getStaticData.stringRequest);
+        if(getStaticData.link_stringRequest != null){
+            // 관리자에게 주문 알람이 도착할 시, 관리자가 주문 내역 리스트를 보고 있다해도 자동으로 리스트 업데이트 진행
+            getStaticData.link_stringRequest.setShouldCache(false);
+            getStaticData.requestQueue.add(getStaticData.link_stringRequest);
+        }
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,
                 PendingIntent.FLAG_ONE_SHOT); // FLAG_ONE_SHOT 일회용 알람
@@ -88,7 +91,7 @@ public class AlarmChannels {
         defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         builder = new Notification.Builder(context,channel)
-                .setTicker(message) // 알람 발생 시 잠깐 text 나타냄
+                .setTicker(message)
                 .setSmallIcon(R.mipmap.ic_launcher) // 알람 이모티콘
                 .setWhen(System.currentTimeMillis()) // 알람 발생 시간
                 .setContentTitle("주문이 들어왔어요! 확인해보세요!") // 알람 제목
@@ -98,7 +101,7 @@ public class AlarmChannels {
                 .setPriority(Notification.PRIORITY_HIGH) // 알람 헤드업 1
                 .setFullScreenIntent(pendingIntent,true) // 알람 헤드업 2
                 .setDefaults(Notification.DEFAULT_ALL) // 알람 기본 진동 및 소리
-                .setAutoCancel(true); //알람 누를 시 자동으로 삭제
+                .setAutoCancel(true); // 알람 누를 시 자동으로 삭제
         bigTextStyle= new Notification.BigTextStyle(builder);
         bigTextStyle.setBigContentTitle("주문이 들어왔어요! 확인해보세요!");
         bigTextStyle.bigText(message); // 알람 핀치줌 (미리 보기)
@@ -109,10 +112,15 @@ public class AlarmChannels {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static void sendNotification_notOreo(Context context , String message , String serialNumber){
         Intent intent = new Intent(context,OrderListActivity.class);
-        intent.putExtra("serialNumber",serialNumber); // 매장 고유키 전달
-
+        intent.putExtra("serialNumber",serialNumber); // 매장 고유 키 전달
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
         // 기존의 같은 View를 보고있다가 알람을 누르면 Stack에서 기존 Activity 재사용 진행
+
+        if(getStaticData.link_stringRequest != null){
+            // 관리자에게 주문 알람이 도착할 시, 관리자가 주문 내역 리스트를 보고 있다해도 자동으로 리스트 업데이트 진행
+            getStaticData.link_stringRequest.setShouldCache(false);
+            getStaticData.requestQueue.add(getStaticData.link_stringRequest);
+        }
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,
                 PendingIntent.FLAG_ONE_SHOT); // FLAG_ONE_SHOT 일회용 알람

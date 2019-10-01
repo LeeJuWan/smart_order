@@ -1,6 +1,5 @@
 package data_source;
 
-import android.util.Log;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -11,7 +10,8 @@ public class getStaticData {
     private static String token = "";
 
     public static RequestQueue requestQueue;
-    public static StringRequest stringRequest;
+    public static StringRequest link_stringRequest;
+    //알람이 오면 리스트를 즉각 업데이트 할 수 있도록 전역변수 설정
 
     public static String getIP() {
         return "zwsdkd.cafe24.com";

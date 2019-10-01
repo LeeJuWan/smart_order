@@ -27,8 +27,8 @@ import otherUtill.AlarmChannels;
 
 public class LoginActivity extends AppCompatActivity{
 
-    private String check_id = ""; //로그인 아이디
-    private String access_pw = ""; //로그인 비밀번호
+    private String check_id = ""; // 로그인 아이디
+    private String access_pw = ""; // 로그인 비밀번호
 
     @Override
     protected void onCreate(Bundle savedInstanceStat) {
@@ -36,10 +36,10 @@ public class LoginActivity extends AppCompatActivity{
         setContentView(R.layout.activity_login);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN); //상태바 제거
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); // 상태바 제거
 
-        final EditText login_id = (EditText) findViewById(R.id.login_id);
-        final EditText login_pw = (EditText) findViewById(R.id.login_pw);
+        EditText login_id = (EditText) findViewById(R.id.login_id);
+        EditText login_pw = (EditText) findViewById(R.id.login_pw);
 
         Button login_btn = (Button) findViewById(R.id.admin_login);
         Button join_btn = (Button) findViewById(R.id.admin_join);
@@ -48,17 +48,17 @@ public class LoginActivity extends AppCompatActivity{
         login_btn.setOnClickListener(new View.OnClickListener() {
             @Override // 로그인 하기위한 입력 값 검증 진행
             public void onClick(View v) {
-                if (login_id.getText().toString() == null || "".equals(login_id.getText().toString()))
+                if ("".equals(login_id.getText().toString()))
                     Toast.makeText(getApplicationContext(),"아이디를 입력해주세요.",Toast.LENGTH_SHORT).show();
-                else if (login_pw.getText().toString() == null || "".equals(login_pw.getText().toString()))
+                else if ( "".equals(login_pw.getText().toString()))
                     Toast.makeText(getApplicationContext(),"비밀번호를 입력해주세요.",Toast.LENGTH_SHORT).show();
                 else {
-                    check_id = login_id.getText().toString(); //사용자가 입력한 아이디
-                    access_pw = login_pw.getText().toString(); //사용자가 입력한 비밀번호
+                    check_id = login_id.getText().toString();
+                    access_pw = login_pw.getText().toString();
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) //로그인 시 알람채널 생성
                         AlarmChannels.createChannel(getApplicationContext());
-                    sendRequest();
+                    loginRequest();
                 }
             }
         });
@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     // 매장 관리자가 입력한 id,pw와 DB에 저장된 id,pw가 동일 한지 확인하기 위한 메서드
-    public void sendRequest() {
+    private void loginRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/login.jsp");
 
         StringRequest stringRequest = new StringRequest(
@@ -87,8 +87,8 @@ public class LoginActivity extends AppCompatActivity{
                         else{
                             String[] resPonse_split = response.split(" ");
                             // 입력한 아이디가 있을 시 암호화된 비밀번호를 DB에서 가져옴
-                            // 이후 암호화된 비밀번호와 입력한 비밀번호가 일치 할시 id,pw 검증 완료 -> 로그인 진행
-                            boolean vaild = BCrypt.checkpw(access_pw, resPonse_split[0]);
+                            // 암호화된 비밀번호와 입력한 비밀번호가 일치할 시 id,pw 검증 완료 -> 로그인 진행
+                            boolean vaild = BCrypt.checkpw(access_pw, resPonse_split[0]); // 암호화된 비밀번호 추출 및 일치 여부 체크
                             if (vaild) {
                                 Intent i = new Intent(getApplicationContext(),OrderListActivity.class);
                                 i.putExtra("serialNumber", resPonse_split[1]); // 매장 식별 키 전달
@@ -111,6 +111,7 @@ public class LoginActivity extends AppCompatActivity{
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> param = new HashMap<String, String>();
+                // 로그인 정보 push 진행
                 param.put("id",check_id);
 
                 return param;

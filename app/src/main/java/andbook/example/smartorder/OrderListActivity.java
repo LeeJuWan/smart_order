@@ -63,22 +63,20 @@ public class OrderListActivity extends ListActivity {
 
         backPressCloseHandler = new BackPressCloseHandler(OrderListActivity.this);
 
-
         Intent intent = getIntent();
         serialNumber = intent.getExtras().getString("serialNumber");
-
 
         update_btn = (Button) findViewById(R.id.update);
         appView = (TextView)findViewById(R.id.app_name);
 
         // 리스트활성화
-        sendRequest();
+        listRequest();
 
         update_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // 리스트 새로고침
-                sendRequest();
+                // 리스트 새로고침 활성화
+                listRequest();
             }
         });
     }
@@ -89,9 +87,8 @@ public class OrderListActivity extends ListActivity {
         backPressCloseHandler.onBackPressed();
     }
 
-
     // 관리자가 자신의 매장 주문 내역을 DB에서 확인하기 위한 메서드
-    public void sendRequest() {
+    private void listRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/list.jsp");
 
         new Thread(new Runnable() {
@@ -115,7 +112,7 @@ public class OrderListActivity extends ListActivity {
 
                     Thread.sleep(100); // 토큰을 받아오는 시간을 고려하여 잠시 sleep
 
-                    StringRequest stringRequest = new StringRequest(
+                    getStaticData.link_stringRequest= new StringRequest(
                             Request.Method.POST, String.valueOf(url),
                             new Response.Listener<String>() {
                                 @Override
@@ -125,13 +122,11 @@ public class OrderListActivity extends ListActivity {
                                         JSONObject jsonObj = new JSONObject(response);
                                         items = new ArrayList<OrderListDTO>();
 
-                                        // 매장 주문 정보
                                         int market_ORDER_COUNT = 0; // 매장 주문 건수
                                         StringBuilder market_Informaion = new StringBuilder(); // 주문 건수 담는 변수
                                         JSONArray jArray = (JSONArray)jsonObj.get("sendData"); // 매장 주문 내역
 
                                         int jArray_Size = jArray.length();
-
                                         for (int i = 0; i < jArray_Size ; i++) {
 
                                             JSONObject row = jArray.getJSONObject(i);
@@ -172,7 +167,7 @@ public class OrderListActivity extends ListActivity {
 
                             // OrderListActivity에서는 token값을 주기적으로 확인하여 주문 알람을 받을 단말기를
                             // DB로 보내 꾸준히 업데이트 시켜줌
-                            // 매장의 식별키를 보내어 해당 관리자를 식별하여 token 업데이트
+                            // 매장의 식별 키를 보내어 해당 관리자를 식별하여 token 업데이트
                             param.put("serialNumber",serialNumber);
                             param.put("token",token);
 
@@ -184,10 +179,11 @@ public class OrderListActivity extends ListActivity {
                     if (getStaticData.requestQueue == null) {
                         getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
                     }
+
                     // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
                     // 항상 새로운 데이터를 위해 false
-                    stringRequest.setShouldCache(false);
-                    getStaticData.requestQueue.add(stringRequest);
+                    getStaticData.link_stringRequest.setShouldCache(false);
+                    getStaticData.requestQueue.add(getStaticData.link_stringRequest);
                 } catch (InterruptedException e) {
                     Log.i("OrderListActivty","InterruptedException error");
                 }
@@ -213,15 +209,15 @@ public class OrderListActivity extends ListActivity {
             }
             OrderListDTO dto = items.get(position);
             if (dto != null) {
-                StringBuilder orderInfo = new StringBuilder();
-                TextView order_info = (TextView) v.findViewById(R.id.order_info);
+                StringBuilder orderinfo = new StringBuilder();
+                TextView order_view = (TextView) v.findViewById(R.id.order_info);
                 Button delete_btn = (Button) v.findViewById(R.id.delete);
 
-                orderInfo.append(dto.getOrder_info()).append("\n");
-                orderInfo.append(dto.getOrder_time()).append("\n");
-                orderInfo.append(dto.getTable_number()).append(" 번 테이블");
+                orderinfo.append(dto.getOrder_info()).append("\n");
+                orderinfo.append(dto.getOrder_time()).append("\n");
+                orderinfo.append(dto.getTable_number()).append(" 번 테이블");
 
-                order_info.setText(orderInfo);
+                order_view.setText(orderinfo);
 
                 // 주문 정보를 삭제 하기 위한 버튼
                 delete_btn.setOnClickListener(new View.OnClickListener() {
@@ -255,16 +251,16 @@ public class OrderListActivity extends ListActivity {
     }
 
     // 매장 관리자가 해당 주문 내역을 삭제할 시 DB에 해당 데이터를 삭제하기 위한 메서드
-    private void deleteRequest(final OrderListDTO dto) {
+    private void deleteRequest(OrderListDTO dto) {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/delete_list.jsp");
 
-         StringRequest stringRequest = new StringRequest(
+        StringRequest stringRequest = new StringRequest(
                 Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         //삭제응답을 받고난 후 리스트 최신화를 위한 데이터 다시 불러오기
-                        sendRequest();
+                        listRequest();
                     }
                 },
                 new Response.ErrorListener() {
@@ -277,6 +273,7 @@ public class OrderListActivity extends ListActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> param = new HashMap<String, String>();
+                // 삭제 정보 push 진행
                 param.put("order_time", dto.getOrder_time());
                 param.put("order_info", dto.getOrder_info());
                 param.put("workplace_num", String.valueOf(dto.getWorkplace_num()));

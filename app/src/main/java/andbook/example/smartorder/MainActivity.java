@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN); //상태바 제거
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); // 상태바 제거
 
         Button admin_flow = (Button)findViewById(R.id.admin_Flow);
         Button custom_flow = (Button)findViewById(R.id.customer_Flow);

@@ -47,7 +47,7 @@ public class OrderActivity extends AppCompatActivity {
     private StringBuffer order_Information_Data;
     private EditText tableNumber;
     private EditText order_Confirm;
-    private Button order_Btn;
+    private Button order_btn;
 
     // 콜백 호출시 requestcode로 넘어가는 구분자
     private final int PERMISSIONREQUEST_RESULT = 100;
@@ -65,10 +65,10 @@ public class OrderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_order);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN); //상태바 제거
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); // 상태바 제거
 
         tableNumber = (EditText) findViewById(R.id.table_num);
-        order_Btn = (Button) findViewById(R.id.order);
+        order_btn = (Button) findViewById(R.id.order);
 
         // AddressListActivity의 전달 값 받아주기
         Intent getIntent = getIntent();
@@ -80,7 +80,7 @@ public class OrderActivity extends AppCompatActivity {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR"); // 음성 인식 언어 설정
 
         // 음식주문 진행 버튼
-        order_Btn.setOnClickListener(new View.OnClickListener() {
+        order_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -88,7 +88,7 @@ public class OrderActivity extends AppCompatActivity {
                     if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
                     {
                         // 권한 허용 시 음식 주문 그대로 진행 & 테이블 번호 입력 검증 진행
-                        if (tableNumber.getText().toString() == null || "".equals(tableNumber.getText().toString())) {
+                        if ("".equals(tableNumber.getText().toString())) {
                             new AlertDialog.Builder(OrderActivity.this)
                                     .setCancelable(false)
                                     .setTitle("테이블 번호 미입력")
@@ -101,7 +101,8 @@ public class OrderActivity extends AppCompatActivity {
                                                     dialog.dismiss();
                                                 }
                                             }).show();
-                        } else {
+                        }
+                        else {
                             recognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext()); // 음성인식 객체
                             recognizer.setRecognitionListener(listener); // 음성인식 리스너 등록
                             try {
@@ -124,12 +125,13 @@ public class OrderActivity extends AppCompatActivity {
                                                 }
                                             }).show();
                         }
-                    } else {
-                        CheckPermission(); // 권한 미허용 시 권한을 얻게함
                     }
-                } else {
+                    else
+                        CheckPermission(); // 권한 미허용 시 권한을 얻게함
+                }
+                else {
                     // 마시멜로우 버전 미만일 시 권한 확인 없이 진행  & 테이블 번호 입력 검증 진행
-                    if (tableNumber.getText().toString() == null || "".equals(tableNumber.getText().toString())) {
+                    if ("".equals(tableNumber.getText().toString())) {
                         new AlertDialog.Builder(OrderActivity.this)
                                 .setCancelable(false)
                                 .setTitle("테이블 번호 미입력")
@@ -142,7 +144,8 @@ public class OrderActivity extends AppCompatActivity {
                                                 dialog.dismiss();
                                             }
                                         }).show();
-                    } else {
+                    }
+                    else {
                         recognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext()); // 음성인식 객체
                         recognizer.setRecognitionListener(listener); // 음성인식 리스너 등록
                         try {
@@ -267,7 +270,7 @@ public class OrderActivity extends AppCompatActivity {
                                             .append("번 테이블 주문이 들어왔어요!");
 
                                     // 여기서 DB 연결 후, 주문 정보 DB에 주문 내역 저장 및 해당 단말기 소유자에게 알람 진행
-                                    sendDataRequest(); //음식정보 저장 및 FCM 서버 전송 및 단말기 token GET
+                                    order_saveRequest(); // 음식정보 저장 및 FCM 서버 전송 및 단말기 token GET
                                     stopSpeechRecognizer(); // 음성 주문 완료로 인한 , 음성 객체 반환
 
                                     dialog.dismiss();
@@ -306,10 +309,10 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     // 사용자의 음성 주문 정보를 해당 매장의 주문 정보DB에 저장 하기위한 메서드
-    private void sendDataRequest() {
+    private void order_saveRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/insert_Orderlist.jsp");
 
-        getStaticData.stringRequest = new StringRequest(
+        StringRequest stringRequest = new StringRequest(
                 Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override
@@ -320,7 +323,7 @@ public class OrderActivity extends AppCompatActivity {
                                     + order_Confirm.getText().toString() + " 주문 완료되었습니다. 감사합니다.", Toast.LENGTH_LONG).show();
 
                             // 해당 관리자의 단말기로 주문 알람을 전송하기 위해 Token 값 Get 진행
-                            sendTokenRequest();
+                            TokenRequest();
                         } else {
                             Toast.makeText(getApplicationContext(), tableNumber.getText().toString() + "번 테이블 "
                                     + order_Confirm.getText().toString() + "주문 오류 다시 시도 해주세요.", Toast.LENGTH_LONG).show();
@@ -337,6 +340,7 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
+                // 주문 정보 push 진행
                 map.put("order_info", order_Confirm.getText().toString());
                 map.put("workplace_num", String.valueOf(addrDTO.getWorkplace_num()));
                 map.put("table_number", tableNumber.getText().toString());
@@ -350,12 +354,12 @@ public class OrderActivity extends AppCompatActivity {
 
         // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
         // 항상 새로운 데이터를 위해 false
-        getStaticData.stringRequest.setShouldCache(false);
-        getStaticData.requestQueue.add(getStaticData.stringRequest);
+        stringRequest.setShouldCache(false);
+        getStaticData.requestQueue.add(stringRequest);
     }
 
     // 주문을 받은 해당 매장의 관리자의 스마트 폰 Token을 얻기 위한 메서드
-    private void sendTokenRequest() {
+    private void TokenRequest() {
         StringBuffer url = new StringBuffer("http://"+getStaticData.getIP()+"/an01/getSerial_setToken.jsp");
 
         StringRequest stringRequest = new StringRequest(
@@ -379,6 +383,7 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
+                // 매장 식별 키 정보 push 진행
                 map.put("serialNumber",String.valueOf(addrDTO.getWorkplace_num()));
 
                 return map;
@@ -387,7 +392,10 @@ public class OrderActivity extends AppCompatActivity {
         if (getStaticData.requestQueue == null) {
             getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
-        stringRequest.setShouldCache(false); // 이전 결과가 있더라도 새로 요청해서 응답을 보여줌
+
+        // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
+        // 항상 새로운 데이터를 위해 false
+        stringRequest.setShouldCache(false);
         getStaticData.requestQueue.add(stringRequest);
     }
 
@@ -443,10 +451,5 @@ public class OrderActivity extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 }

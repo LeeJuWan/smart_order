@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -31,8 +30,7 @@ import otherUtill.AlarmChannels;
 public class JoinActivity extends AppCompatActivity {
 
     private final String pw_regex = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&])[A-Za-z[0-9]$@$!%*#?&]{8,}$"; // 비밀번호 정규식
-
-    private final String ph_regex = "^\\d{2,3}\\d{3,4}\\d{4}$";; // 전화번호 정규식
+    private final String ph_regex = "^\\d{2,3}\\d{3,4}\\d{4}$"; // 전화번호 정규식
 
     private String id = "";
     private String market_name = "";
@@ -46,13 +44,13 @@ public class JoinActivity extends AppCompatActivity {
         setContentView(R.layout.activity_join);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN); //상태바 제거
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); // 상태바 제거
 
-        final EditText join_id = (EditText) findViewById(R.id.join_id);
-        final EditText join_pw = (EditText) findViewById(R.id.join_pw);
-        final EditText join_workplace_name = (EditText) findViewById(R.id.join_workplace_name);
-        final EditText join_workplace_adress = (EditText) findViewById(R.id.join_workplace_adress);
-        final EditText join_workplace_phoneNumber = (EditText) findViewById(R.id.join_workplace_phoneNumber);
+        EditText join_id = (EditText) findViewById(R.id.join_id);
+        EditText join_pw = (EditText) findViewById(R.id.join_pw);
+        EditText join_workplace_name = (EditText) findViewById(R.id.join_workplace_name);
+        EditText join_workplace_adress = (EditText) findViewById(R.id.join_workplace_adress);
+        EditText join_workplace_phoneNumber = (EditText) findViewById(R.id.join_workplace_phoneNumber);
 
         Button cancel_btn = (Button) findViewById(R.id.join_cancel);
         Button ok_btn = (Button) findViewById(R.id.join_ok);
@@ -62,28 +60,16 @@ public class JoinActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 회원 가입 입력 값 검증 작업 진행
-                if("".equals(join_id.getText().toString())) { // 사용할 아이디 공백일 시
+                if("".equals(join_id.getText().toString())) // 사용할 아이디 공백일 시
                     Toast.makeText(getApplicationContext(),"아이디를 입력해주세요.",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                else if("".equals(join_pw.getText().toString())) { // 사용할 비밀번호 공백일 시
+                else if("".equals(join_pw.getText().toString())) // 사용할 비밀번호 공백일 시
                      Toast.makeText(getApplicationContext(),"비밀번호를 입력해주세요.",Toast.LENGTH_SHORT).show();
-                   return;
-                }
-                else if("".equals(join_workplace_name.getText().toString())) { // 사용할 상호명 공백일 시
+                else if("".equals(join_workplace_name.getText().toString())) // 사용할 상호명 공백일 시
                      Toast.makeText(getApplicationContext(),"매장 상호명을 입력해주세요.",Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 else if("".equals(join_workplace_adress.getText().toString())) // 사용할 주소 공백일 시
-                {
                      Toast.makeText(getApplicationContext(),"매장 주소를 입력해주세요",Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 else if("".equals(join_workplace_phoneNumber.getText().toString())) //사용할 전화번호 공백일 시
-                {
                     Toast.makeText(getApplicationContext(),"휴대전화 또는 매장 전화번호를 입력해주세요",Toast.LENGTH_LONG).show();
-                    return;
-                }
                 else{
                     if (join_workplace_phoneNumber.getText().toString().matches(ph_regex)) { // 전화번호를 올바른 형식으로 입력했을 시
                         if (join_pw.getText().toString().matches(pw_regex)) { // 비밀번호를 올바른 형식으로 입력했을 시
@@ -91,13 +77,13 @@ public class JoinActivity extends AppCompatActivity {
                             market_name = join_workplace_name.getText().toString();
                             market_addr = join_workplace_adress.getText().toString();
                             market_phone = join_workplace_phoneNumber.getText().toString();
-                            encryption_pw = BCrypt.hashpw(join_pw.getText().toString(), BCrypt.gensalt(10)); //사용할 아이디 암호화 완료
+                            encryption_pw = BCrypt.hashpw(join_pw.getText().toString(), BCrypt.gensalt(10)); //사용할 아이디 암호화
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 회원 가입 시 알람채널 생성
                                 AlarmChannels.createChannel(getApplicationContext());
                             }
                             // 회원 가입 저장 진행
-                            sendRequest();
+                            joinRequest();
                         }
                         else
                             // 비밀번호를 올바른 형식으로 입력하지 않았을 시
@@ -105,7 +91,7 @@ public class JoinActivity extends AppCompatActivity {
                     }
                     else
                         // 전화번호를 올바른 형식으로 입력하지 않았을 시
-                        Toast.makeText(getApplicationContext(),"전화번호를 올바르게 입력해주세요",Toast.LENGTH_SHORT).show(); // 전화번호를 올바른 형식으로 입력하지 않았을 시
+                        Toast.makeText(getApplicationContext(),"전화번호를 올바르게 입력해주세요",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -120,8 +106,7 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     // 매장 관리자의 회원 정보를 DB에 저장 하기위한 메서드
-    public void sendRequest() {
-        Log.i("Join sendRequest", "진입");
+    private void joinRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/join.jsp");
 
         StringRequest stringRequest= new StringRequest(
@@ -129,7 +114,6 @@ public class JoinActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-
                         switch (response.trim()) {
                             case "alreadyID":
                                 Toast.makeText(getApplicationContext(), "이미 해당 아이디는 사용하고 있습니다.", Toast.LENGTH_SHORT).show();
@@ -138,11 +122,11 @@ public class JoinActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "시스템 오류입니다. 다시 아이디를 입력해주세요.", Toast.LENGTH_SHORT).show();
                                 break;
                             default:
-                                String[] resPonse_split = response.split(" ");
+                                String[] resPonse_split = response.split(" "); // 매장 식별 키 추출
                                 Toast.makeText(getApplicationContext(), "회원가입이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
-                                Intent i = new Intent(getApplicationContext(), OrderListActivity.class);
-                                i.putExtra("serialNumber", resPonse_split[1]); // 매장 식별 키 전달
-                                startActivity(i);
+                                Intent intent = new Intent(getApplicationContext(), OrderListActivity.class);
+                                intent.putExtra("serialNumber", resPonse_split[1]); // 매장 식별 키 전달
+                                startActivity(intent);
                                 finish();
                                 break;
                         }
@@ -159,7 +143,7 @@ public class JoinActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-
+                // 회원가입 정보 push 진행
                 params.put("id", id);
                 params.put("place_name", market_name);
                 params.put("address", market_addr);

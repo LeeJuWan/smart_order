@@ -80,7 +80,7 @@ public class AddressListActivity extends ListActivity {
         final EditText seach_Line = (EditText) findViewById(R.id.seach_line);
 
         // 로그인 or 회원가입 시 자동으로 현재 매장정보 제공
-        sendRequest();
+        addressRequest();
 
         seach_Line.addTextChangedListener(new TextWatcher() {
             @Override
@@ -117,7 +117,7 @@ public class AddressListActivity extends ListActivity {
 
 
     // 사용자에게 제공할 매장 정보 데이터를 DB에서 가져오기 위한 메서드
-    private void sendRequest() {
+    private void addressRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/address.jsp");
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
