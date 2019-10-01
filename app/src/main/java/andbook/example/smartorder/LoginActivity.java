@@ -81,12 +81,11 @@ public class LoginActivity extends AppCompatActivity{
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        String[] resPonse_split = response.split(" ");
 
-                        if(resPonse_split[0].equals("NotFoundID")){
+                        if(response.trim().equals("NotFoundID"))
                             Toast.makeText(getApplicationContext(),"아이디를 잘못 입력하였습니다.",Toast.LENGTH_SHORT).show();
-                        }
                         else{
+                            String[] resPonse_split = response.split(" ");
                             // 입력한 아이디가 있을 시 암호화된 비밀번호를 DB에서 가져옴
                             // 이후 암호화된 비밀번호와 입력한 비밀번호가 일치 할시 id,pw 검증 완료 -> 로그인 진행
                             boolean vaild = BCrypt.checkpw(access_pw, resPonse_split[0]);
@@ -105,8 +104,8 @@ public class LoginActivity extends AppCompatActivity{
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
-                    }
                 }
+    }
         )
         {
             @Override

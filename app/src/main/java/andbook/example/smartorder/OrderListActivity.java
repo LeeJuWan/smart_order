@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.NetworkOnMainThreadException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -16,7 +15,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -33,7 +31,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +38,6 @@ import java.util.Map;
 
 import data_source.getStaticData;
 import dto.OrderListDTO;
-import otherUtill.Authority;
 import otherUtill.BackPressCloseHandler;
 
 public class OrderListActivity extends ListActivity {
@@ -54,13 +50,9 @@ public class OrderListActivity extends ListActivity {
     private String serialNumber = "";
     private String token = "";
 
-    private boolean login = false;
-
-    // 스레드 무한루프 break flag
-    private boolean thread_StopFlag = true;
-
     private TextView appView;
     private Button update_btn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,9 +64,9 @@ public class OrderListActivity extends ListActivity {
         backPressCloseHandler = new BackPressCloseHandler(OrderListActivity.this);
 
 
-        Intent i = getIntent();
-        serialNumber = i.getExtras().getString("serialNumber");
-        login = i.getExtras().getBoolean("login");
+        Intent intent = getIntent();
+        serialNumber = intent.getExtras().getString("serialNumber");
+
 
         update_btn = (Button) findViewById(R.id.update);
         appView = (TextView)findViewById(R.id.app_name);
@@ -85,26 +77,10 @@ public class OrderListActivity extends ListActivity {
         update_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // 리스트 업데이트 새로고침
+                // 리스트 새로고침
                 sendRequest();
             }
         });
-    }
-
-    // 중복 체크
-    @Override
-    protected void onResume() {
-        Log.i("onResume", "test");
-        Authority.isAuthority(getApplicationContext());
-        super.onResume();
-
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-        // 액티비티 정지 시 쓰레드 무한 루프 풀기 위해 flag값 false
-        thread_StopFlag = false;
     }
 
     // 뒤로가기 체크
@@ -115,7 +91,7 @@ public class OrderListActivity extends ListActivity {
 
 
     // 관리자가 자신의 매장 주문 내역을 DB에서 확인하기 위한 메서드
-    private void sendRequest() {
+    public void sendRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/list.jsp");
 
         new Thread(new Runnable() {
@@ -178,8 +154,6 @@ public class OrderListActivity extends ListActivity {
                                         OrderAdapter adapter = new OrderAdapter(
                                                 OrderListActivity.this, R.layout.order_row, items);
                                         setListAdapter(adapter);
-
-                                        login=false;
                                     } catch (JSONException e) {
                                         Log.i("OrderListActivty error","JSONException error");
                                     }
@@ -201,7 +175,7 @@ public class OrderListActivity extends ListActivity {
                             // 매장의 식별키를 보내어 해당 관리자를 식별하여 token 업데이트
                             param.put("serialNumber",serialNumber);
                             param.put("token",token);
-                            param.put("login",String.valueOf(login));
+
                             Log.d("진입 access token",token);
                             Log.d("진입 access serialNumber",serialNumber);
                             return param;
@@ -210,21 +184,10 @@ public class OrderListActivity extends ListActivity {
                     if (getStaticData.requestQueue == null) {
                         getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
                     }
-
-                    while( thread_StopFlag )
-                    {
-                        // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
-                        // 항상 새로운 데이터를 위해 false
-                        stringRequest.setShouldCache(false);
-                        getStaticData.requestQueue.add(stringRequest);
-                        try{
-                            // 5초마다 네트워킹을 통해 DB에 저장된 주문 내역을 가져와 실시간으로
-                            // 주문 정보 내역 자동 리스트업 진행
-                            Thread.sleep(5000);
-                        }catch (RuntimeException e){
-                            Log.i("OrderListActivity","RuntimeException error");
-                        }
-                    }
+                    // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
+                    // 항상 새로운 데이터를 위해 false
+                    stringRequest.setShouldCache(false);
+                    getStaticData.requestQueue.add(stringRequest);
                 } catch (InterruptedException e) {
                     Log.i("OrderListActivty","InterruptedException error");
                 }
@@ -295,7 +258,7 @@ public class OrderListActivity extends ListActivity {
     private void deleteRequest(final OrderListDTO dto) {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/delete_list.jsp");
 
-        StringRequest stringRequest = new StringRequest(
+         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override

@@ -267,10 +267,10 @@ public class OrderActivity extends AppCompatActivity {
                                             .append("번 테이블 주문이 들어왔어요!");
 
                                     // 여기서 DB 연결 후, 주문 정보 DB에 주문 내역 저장 및 해당 단말기 소유자에게 알람 진행
-                                    sendData(); //음식정보 저장 및 FCM 서버 전송 및 단말기 token GET
+                                    sendDataRequest(); //음식정보 저장 및 FCM 서버 전송 및 단말기 token GET
+                                    stopSpeechRecognizer(); // 음성 주문 완료로 인한 , 음성 객체 반환
 
                                     dialog.dismiss();
-                                    stopSpeechRecognizer(); // 음성 주문 완료로 인한 , 음성 객체 반환
                                 }
                             })
                     .setNegativeButton("주문 취소",
@@ -278,8 +278,9 @@ public class OrderActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     Toast.makeText(getApplicationContext(), "다시 주문 하시겠어요?", Toast.LENGTH_SHORT).show();
-                                    dialog.dismiss();
                                     stopSpeechRecognizer(); // 음성 주문 취소로 인한 , 음성 객체 반환
+
+                                    dialog.dismiss();
                                 }
                             }).show();
 
@@ -288,7 +289,6 @@ public class OrderActivity extends AppCompatActivity {
         @Override
         public void onPartialResults(Bundle partialResults) { // 부분 인식 결과를 사용할 수 있을 때 호출됩니다.
         }
-
         @Override
         public void onEvent(int eventType, Bundle params) { // 향후 이벤트를 추가하기 위해 예약됩니다.
         }
@@ -306,23 +306,25 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     // 사용자의 음성 주문 정보를 해당 매장의 주문 정보DB에 저장 하기위한 메서드
-    private void sendData() {
+    private void sendDataRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/insert_Orderlist.jsp");
 
-        StringRequest stringRequest = new StringRequest(
+        getStaticData.stringRequest = new StringRequest(
                 Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        Log.i("진입 Order",response);
                         if (response.equals("성공")) {
                             Toast.makeText(getApplicationContext(), tableNumber.getText().toString() + "번 테이블 "
                                     + order_Confirm.getText().toString() + " 주문 완료되었습니다. 감사합니다.", Toast.LENGTH_LONG).show();
+
+                            // 해당 관리자의 단말기로 주문 알람을 전송하기 위해 Token 값 Get 진행
+                            sendTokenRequest();
                         } else {
                             Toast.makeText(getApplicationContext(), tableNumber.getText().toString() + "번 테이블 "
                                     + order_Confirm.getText().toString() + "주문 오류 다시 시도 해주세요.", Toast.LENGTH_LONG).show();
                         }
-                        // 해당 관리자의 단말기로 주문 알람을 전송하기 위해 Token 값 Get 진행
-                        sendTokenRequest();
                     }
                 },
                 new Response.ErrorListener() {
@@ -335,9 +337,9 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
-                map.put("orderInfo", order_Confirm.getText().toString());
+                map.put("order_info", order_Confirm.getText().toString());
                 map.put("workplace_num", String.valueOf(addrDTO.getWorkplace_num()));
-                map.put("tableNumber", tableNumber.getText().toString());
+                map.put("table_number", tableNumber.getText().toString());
 
                 return map;
             }
@@ -348,8 +350,8 @@ public class OrderActivity extends AppCompatActivity {
 
         // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
         // 항상 새로운 데이터를 위해 false
-        stringRequest.setShouldCache(false);
-        getStaticData.requestQueue.add(stringRequest);
+        getStaticData.stringRequest.setShouldCache(false);
+        getStaticData.requestQueue.add(getStaticData.stringRequest);
     }
 
     // 주문을 받은 해당 매장의 관리자의 스마트 폰 Token을 얻기 위한 메서드
@@ -370,7 +372,6 @@ public class OrderActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("진입 error","not found");
                         error.printStackTrace();
                     }
                 }

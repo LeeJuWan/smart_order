@@ -20,6 +20,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import andbook.example.smartorder.OrderListActivity;
 import andbook.example.smartorder.R;
+import data_source.getStaticData;
 
 
 // 알람 채널 생성 및 푸시알람 구현
@@ -73,10 +74,12 @@ public class AlarmChannels {
     @TargetApi(Build.VERSION_CODES.O)
     public static  void sendNotification(Context context, @Channel String channel ,String message, String serialNumber){
         intent = new Intent(context,OrderListActivity.class);
-        intent.putExtra("serialNumber",serialNumber);
+        intent.putExtra("serialNumber",serialNumber); // 매장 고유키 전달
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
         // 기존의 같은 View를 보고있다가 알람을 누르면 Stack에서 기존 Activity 재사용 진행
 
+        getStaticData.stringRequest.setShouldCache(false);
+        getStaticData.requestQueue.add(getStaticData.stringRequest);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,
                 PendingIntent.FLAG_ONE_SHOT); // FLAG_ONE_SHOT 일회용 알람
@@ -106,7 +109,8 @@ public class AlarmChannels {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static void sendNotification_notOreo(Context context , String message , String serialNumber){
         Intent intent = new Intent(context,OrderListActivity.class);
-        intent.putExtra("serialNumber",serialNumber);
+        intent.putExtra("serialNumber",serialNumber); // 매장 고유키 전달
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
         // 기존의 같은 View를 보고있다가 알람을 누르면 Stack에서 기존 Activity 재사용 진행
 

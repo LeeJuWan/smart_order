@@ -30,8 +30,9 @@ import otherUtill.AlarmChannels;
 
 public class JoinActivity extends AppCompatActivity {
 
-    private final String pw_regex = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,}"; // 비밀번호 정규식
-    private final String ph_regex = "^\\d{2,3}-\\d{3,4}-\\d{4}$"; // 전화번호 정규식
+    private final String pw_regex = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&])[A-Za-z[0-9]$@$!%*#?&]{8,}$"; // 비밀번호 정규식
+
+    private final String ph_regex = "^\\d{2,3}\\d{3,4}\\d{4}$";; // 전화번호 정규식
 
     private String id = "";
     private String market_name = "";
@@ -61,49 +62,51 @@ public class JoinActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 회원 가입 입력 값 검증 작업 진행
-//                if (join_id.getText().toString() == null || "".equals(join_id.getText().toString())) { // 사용할 아이디 공백일 시
-//                    Toast.makeText(getApplicationContext(),"아이디를 입력해주세요.",Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                if (join_pw.getText().toString() == null || "".equals(join_pw.getText().toString())) { // 사용할 비밀번호 공백일 시
-//                     Toast.makeText(getApplicationContext(),"비밀번호를 입력해주세요.",Toast.LENGTH_SHORT).show();
-//                   return;
-//                }
-//                if (join_workplace_name.getText().toString() == null || "".equals(join_workplace_name.getText().toString())) { // 사용할 상호명 공백일 시
-//                     Toast.makeText(getApplicationContext(),"매장 상호명을 입력해주세요.",Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                if (join_workplace_adress.getText().toString() == null || "".equals(join_workplace_adress.getText().toString())) // 사용할 주소 공백일 시
-//                {
-//                     Toast.makeText(getApplicationContext(),"매장 주소를 입력해주세요",Toast.LENGTH_SHORT).show();
-//                    return;
-//
-//                }
-//
-//                if (join_workplace_phoneNumber.getText().toString() == null || "".equals(join_workplace_phoneNumber.getText().toString())) //사용할 전화번호 공백일 시
-//                {
-//                    Toast.makeText(getApplicationContext(),"휴대전화 또는 매장 전화번호를 입력해주세요",Toast.LENGTH_LONG).show();
-//                    return;
-//                }
-//                    if (ph_regex.matches(join_workplace_phoneNumber.getText().toString())) { // 전화번호를 올바른 형식으로 입력했을 시
-//                        if (pw_regex.matches(join_pw.getText().toString())) { // 비밀번호를 올바른 형식으로 입력했을 시
-                id = join_id.getText().toString();
-                market_name = join_workplace_name.getText().toString();
-                market_addr = join_workplace_adress.getText().toString();
-                market_phone = join_workplace_phoneNumber.getText().toString();
-                encryption_pw = BCrypt.hashpw(join_pw.getText().toString(), BCrypt.gensalt(10)); //사용할 아이디 암호화 완료
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 회원 가입 시 알람채널 생성
-                    AlarmChannels.createChannel(getApplicationContext());
+                if("".equals(join_id.getText().toString())) { // 사용할 아이디 공백일 시
+                    Toast.makeText(getApplicationContext(),"아이디를 입력해주세요.",Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                sendRequest();
+                else if("".equals(join_pw.getText().toString())) { // 사용할 비밀번호 공백일 시
+                     Toast.makeText(getApplicationContext(),"비밀번호를 입력해주세요.",Toast.LENGTH_SHORT).show();
+                   return;
+                }
+                else if("".equals(join_workplace_name.getText().toString())) { // 사용할 상호명 공백일 시
+                     Toast.makeText(getApplicationContext(),"매장 상호명을 입력해주세요.",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else if("".equals(join_workplace_adress.getText().toString())) // 사용할 주소 공백일 시
+                {
+                     Toast.makeText(getApplicationContext(),"매장 주소를 입력해주세요",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else if("".equals(join_workplace_phoneNumber.getText().toString())) //사용할 전화번호 공백일 시
+                {
+                    Toast.makeText(getApplicationContext(),"휴대전화 또는 매장 전화번호를 입력해주세요",Toast.LENGTH_LONG).show();
+                    return;
+                }
+                else{
+                    if (join_workplace_phoneNumber.getText().toString().matches(ph_regex)) { // 전화번호를 올바른 형식으로 입력했을 시
+                        if (join_pw.getText().toString().matches(pw_regex)) { // 비밀번호를 올바른 형식으로 입력했을 시
+                            id = join_id.getText().toString();
+                            market_name = join_workplace_name.getText().toString();
+                            market_addr = join_workplace_adress.getText().toString();
+                            market_phone = join_workplace_phoneNumber.getText().toString();
+                            encryption_pw = BCrypt.hashpw(join_pw.getText().toString(), BCrypt.gensalt(10)); //사용할 아이디 암호화 완료
 
-//                        } else
-//                             Toast.makeText(getApplicationContext(),"비밀번호를 특수문자+영문자+숫자 조합 8자 이상으로 입력해주세요.",Toast.LENGTH_SHORT).show();
-                // 비밀번호를 올바른 형식으로 입력하지 않았을 시
-//                    } else
-//                        Toast.makeText(getApplicationContext(),"전화번호를 올바르게 입력해주세요",Toast.LENGTH_SHORT).show(); // 전화번호를 올바른 형식으로 입력하지 않았을 시
-
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 회원 가입 시 알람채널 생성
+                                AlarmChannels.createChannel(getApplicationContext());
+                            }
+                            // 회원 가입 저장 진행
+                            sendRequest();
+                        }
+                        else
+                            // 비밀번호를 올바른 형식으로 입력하지 않았을 시
+                            Toast.makeText(getApplicationContext(),"비밀번호를 특수문자+영문자+숫자 조합 8자 이상으로 입력해주세요.",Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                        // 전화번호를 올바른 형식으로 입력하지 않았을 시
+                        Toast.makeText(getApplicationContext(),"전화번호를 올바르게 입력해주세요",Toast.LENGTH_SHORT).show(); // 전화번호를 올바른 형식으로 입력하지 않았을 시
+                }
             }
         });
 
@@ -121,15 +124,13 @@ public class JoinActivity extends AppCompatActivity {
         Log.i("Join sendRequest", "진입");
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/join.jsp");
 
-        StringRequest request = new StringRequest(
+        StringRequest stringRequest= new StringRequest(
                 Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
 
-                        String[] resPonse_split = response.split(" ");
-
-                        switch (resPonse_split[0]) {
+                        switch (response.trim()) {
                             case "alreadyID":
                                 Toast.makeText(getApplicationContext(), "이미 해당 아이디는 사용하고 있습니다.", Toast.LENGTH_SHORT).show();
                                 break;
@@ -137,6 +138,7 @@ public class JoinActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "시스템 오류입니다. 다시 아이디를 입력해주세요.", Toast.LENGTH_SHORT).show();
                                 break;
                             default:
+                                String[] resPonse_split = response.split(" ");
                                 Toast.makeText(getApplicationContext(), "회원가입이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
                                 Intent i = new Intent(getApplicationContext(), OrderListActivity.class);
                                 i.putExtra("serialNumber", resPonse_split[1]); // 매장 식별 키 전달
@@ -159,10 +161,10 @@ public class JoinActivity extends AppCompatActivity {
                 Map<String, String> params = new HashMap<String, String>();
 
                 params.put("id", id);
-                params.put("market_name", market_name);
-                params.put("market_addr", market_addr);
-                params.put("market_phone", market_phone);
-                params.put("encryption_pw", encryption_pw);
+                params.put("place_name", market_name);
+                params.put("address", market_addr);
+                params.put("phone_number", market_phone);
+                params.put("pw", encryption_pw);
                 params.put("token", getStaticData.getToken());
 
                 return params;
@@ -174,7 +176,7 @@ public class JoinActivity extends AppCompatActivity {
         if (getStaticData.requestQueue == null) {
             getStaticData.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
-        request.setShouldCache(false);
-        getStaticData.requestQueue.add(request);
+        stringRequest.setShouldCache(false);
+        getStaticData.requestQueue.add(stringRequest);
     }
 }

@@ -16,6 +16,10 @@
         android:textSize="15sp"
         android:gravity="center"
         android:textStyle="bold" />
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
     <TextView
         android:id="@+id/address"
@@ -26,6 +30,11 @@
         android:textSize="13sp"
         android:gravity="center"
         android:textStyle="bold" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
     <TextView
         android:id="@+id/phone_number"
