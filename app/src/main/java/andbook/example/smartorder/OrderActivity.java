@@ -309,7 +309,7 @@ public class OrderActivity extends AppCompatActivity {
     private void sendDataRequest() {
         StringBuffer url = new StringBuffer("http://" + getStaticData.getIP() + "/an01/insert_Orderlist.jsp");
 
-        getStaticData.stringRequest = new StringRequest(
+        StringRequest stringRequest = new StringRequest(
                 Request.Method.POST, String.valueOf(url),
                 new Response.Listener<String>() {
                     @Override
@@ -350,8 +350,8 @@ public class OrderActivity extends AppCompatActivity {
 
         // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
         // 항상 새로운 데이터를 위해 false
-        getStaticData.stringRequest.setShouldCache(false);
-        getStaticData.requestQueue.add(getStaticData.stringRequest);
+        stringRequest.setShouldCache(false);
+        getStaticData.requestQueue.add(stringRequest);
     }
 
     // 주문을 받은 해당 매장의 관리자의 스마트 폰 Token을 얻기 위한 메서드

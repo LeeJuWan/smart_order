@@ -115,7 +115,7 @@ public class OrderListActivity extends ListActivity {
 
                     Thread.sleep(100); // 토큰을 받아오는 시간을 고려하여 잠시 sleep
 
-                    StringRequest stringRequest = new StringRequest(
+                    getStaticData.stringRequest = new StringRequest(
                             Request.Method.POST, String.valueOf(url),
                             new Response.Listener<String>() {
                                 @Override
@@ -186,8 +186,8 @@ public class OrderListActivity extends ListActivity {
                     }
                     // 캐시 데이터 가져오지 않음 왜냐면 기존 데이터 가져올 수 있기때문
                     // 항상 새로운 데이터를 위해 false
-                    stringRequest.setShouldCache(false);
-                    getStaticData.requestQueue.add(stringRequest);
+                    getStaticData.stringRequest .setShouldCache(false);
+                    getStaticData.requestQueue.add(getStaticData.stringRequest );
                 } catch (InterruptedException e) {
                     Log.i("OrderListActivty","InterruptedException error");
                 }
