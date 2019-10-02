@@ -224,10 +224,10 @@ public class OrderListActivity extends ListActivity {
                     @Override
                     public void onClick(View view) {
                         // 삭제 전 확인 절차 진행
-                        new AlertDialog.Builder(OrderListActivity.this)
+                        new AlertDialog.Builder(OrderListActivity.this,R.style.AlertDialog)
                                 .setCancelable(false)
                                 .setTitle("주문 완료")
-                                .setIcon(R.mipmap.ic_launcher)
+                                .setIcon(R.mipmap.noti_96)
                                 .setMessage("POS기기에 주문 내용을 입력하셨나요? 하셨다면 주문 완료를 눌러주세요.")
                                 .setPositiveButton("주문완료", new DialogInterface.OnClickListener() {
                                     @Override

@@ -89,10 +89,10 @@ public class OrderActivity extends AppCompatActivity {
                     {
                         // 권한 허용 시 음식 주문 그대로 진행 & 테이블 번호 입력 검증 진행
                         if ("".equals(tableNumber.getText().toString())) {
-                            new AlertDialog.Builder(OrderActivity.this)
+                            new AlertDialog.Builder(OrderActivity.this,R.style.AlertDialog)
                                     .setCancelable(false)
                                     .setTitle("테이블 번호 미입력")
-                                    .setIcon(R.mipmap.ic_launcher)
+                                    .setIcon(R.mipmap.noti_96)
                                     .setMessage("고객님의 테이블 번호를 입력해주세요")
                                     .setPositiveButton("확인",
                                             new DialogInterface.OnClickListener() {
@@ -110,10 +110,10 @@ public class OrderActivity extends AppCompatActivity {
                             } catch (SecurityException e) {
                                 Log.i("OrderActivty","SecurityException error");
                             }
-                            new AlertDialog.Builder(OrderActivity.this)
+                            new AlertDialog.Builder(OrderActivity.this,R.style.AlertDialog)
                                     .setCancelable(false)
                                     .setTitle("주문 진행")
-                                    .setIcon(R.mipmap.ic_launcher)
+                                    .setIcon(R.mipmap.noti_96)
                                     .setMessage("지금부터 음성으로 주문해주세요\n" +
                                             "주문을 다하셨다면 OK를 눌러주세요.\n" +
                                             "오랫동안 말하지않으면 주문이 안됩니다 !")
@@ -132,10 +132,10 @@ public class OrderActivity extends AppCompatActivity {
                 else {
                     // 마시멜로우 버전 미만일 시 권한 확인 없이 진행  & 테이블 번호 입력 검증 진행
                     if ("".equals(tableNumber.getText().toString())) {
-                        new AlertDialog.Builder(OrderActivity.this)
+                        new AlertDialog.Builder(OrderActivity.this,R.style.AlertDialog)
                                 .setCancelable(false)
                                 .setTitle("테이블 번호 미입력")
-                                .setIcon(R.mipmap.ic_launcher)
+                                .setIcon(R.mipmap.noti_96)
                                 .setMessage("고객님의 테이블 번호를 입력해주세요")
                                 .setPositiveButton("확인",
                                         new DialogInterface.OnClickListener() {
@@ -153,10 +153,10 @@ public class OrderActivity extends AppCompatActivity {
                         } catch (SecurityException e) {
                             Log.i("OrderActivty","SecurityException error");
                         }
-                        new AlertDialog.Builder(OrderActivity.this)
+                        new AlertDialog.Builder(OrderActivity.this,R.style.AlertDialog)
                                 .setCancelable(false)
                                 .setTitle("주문 진행")
-                                .setIcon(R.mipmap.ic_launcher)
+                                .setIcon(R.mipmap.noti_96)
                                 .setMessage("지금부터 음성으로 주문해주세요\n" +
                                         "주문을 다하셨다면 OK를 눌러주세요.\n" +
                                         "오랫동안 말하지않으면 주문이 안됩니다 !")
@@ -253,11 +253,11 @@ public class OrderActivity extends AppCompatActivity {
             order_Information_Data = new StringBuffer();
 
             // 여기서 음성결과 출력
-            new AlertDialog.Builder(OrderActivity.this)
+            new AlertDialog.Builder(OrderActivity.this,R.style.AlertDialog)
                     .setCancelable(false)
                     .setTitle("주문 결과 확인")
                     .setView(order_Confirm)
-                    .setIcon(R.mipmap.ic_launcher)
+                    .setIcon(R.mipmap.noti_96)
                     .setPositiveButton("주문 완료",
                             new DialogInterface.OnClickListener() {
                                 @Override
@@ -428,9 +428,9 @@ public class OrderActivity extends AppCompatActivity {
                 for (int aGrantResult : grantResult) {
                     if (aGrantResult == PackageManager.PERMISSION_DENIED) {
                         // 권한이 하나라도 거부 될 시
-                        new AlertDialog.Builder(this)
+                        new AlertDialog.Builder(this,R.style.AlertDialog)
                                 .setTitle("사용 권한의 문제발생")
-                                .setIcon(R.mipmap.ic_launcher)
+                                .setIcon(R.mipmap.noti_96)
                                 .setMessage("음성 주문을 위해서는 다음의 권한이 필요합니다.")
                                 .setPositiveButton("종료", new DialogInterface.OnClickListener() {
                                     @Override

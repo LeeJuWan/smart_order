@@ -5,76 +5,79 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textVeiw9"
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="338dp"
-        android:layout_marginBottom="30dp"
-        android:gravity="center"
-        android:text="당신을 위한 주문 서비스"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-smallcaps"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/background"/>
+        android:layout_height="100dp"
+        android:layout_marginBottom="130dp"
+        android:background="@drawable/title" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:orientation="vertical">
-
+        android:layout_marginBottom="30dp">
         <!--로그인 아이디 입력-->
         <EditText
             android:id="@+id/login_id"
-            android:layout_marginBottom="10dp"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="match_parent"
             android:layout_marginLeft="100dp"
             android:layout_marginRight="100dp"
-            android:hint="id"
-            android:inputType="text"
-            android:background="@drawable/edt_background"/>
+            android:hint="아이디를 입력해주세요"
+            android:inputType="text" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp">
         <!--로그인 비밀번호 입력-->
         <EditText
             android:id="@+id/login_pw"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="match_parent"
             android:layout_marginLeft="100dp"
             android:layout_marginRight="100dp"
-            android:hint="password"
-            android:inputType="textPassword"
-            android:background="@drawable/edt_background"/>
+            android:hint="비밀번호를 입력해주세요"
+            android:inputType="textPassword" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
+        android:layout_marginBottom="30dp">
         <!--로그인 진행 버튼-->
         <Button
             android:id="@+id/admin_login"
-            android:height="60dp"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
+            android:layout_marginStart="100dp"
+            android:height="70dp"
+            android:background="@drawable/select_btn"
+            android:fontFamily="@font/dohyeonregular"
             android:text="로그인"
-            android:background="@drawable/select_btn"/>
+            android:textSize="25sp"
+            android:textColor="#111111"
+            android:textStyle="bold" />
+    </LinearLayout>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <!--회원 가입 진행 버튼-->
         <Button
             android:id="@+id/admin_join"
-            android:height="60dp"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
+            android:layout_marginStart="100dp"
+            android:height="70dp"
+            android:background="@drawable/select_btn"
+            android:fontFamily="@font/dohyeonregular"
             android:text="회원가입"
-            android:background="@drawable/select_btn"/>
-
+            android:textSize="25sp"
+            android:textColor="#111111"
+            android:textStyle="bold" />
     </LinearLayout>
+
 </LinearLayout>

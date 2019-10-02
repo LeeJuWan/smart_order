@@ -3,49 +3,53 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
 
-    <TextView
-        android:layout_marginTop="50dp"
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textAlignment="center"
-        android:text="테이블 번호를 입력한 뒤, 매장에 비치된 메뉴판을 보시고\n 음성으로 주문 해주시면 됩니다."
-        android:background="@drawable/tedoori"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="70dp"/>
+        android:layout_height="100dp"
+        android:layout_marginBottom="130dp"
+        android:background="@drawable/title" />
 
-    <!--테이블 번호 입력-->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-
+        android:layout_marginBottom="30dp">
+        <!--테이블 번호 입력-->
         <EditText
             android:id="@+id/table_num"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginLeft="100dp"
+            android:layout_marginRight="100dp"
             android:textStyle="bold"
             android:hint="테이블 번호 입력"
             android:inputType="number" />
+    </LinearLayout>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="200dp">
         <!--주문 진행 버튼-->
         <Button
             android:id="@+id/order"
-            android:layout_width="wrap_content"
+            android:background="@drawable/select_btn"
+            android:layout_width="250dp"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
+            android:layout_marginStart="80dp"
+            android:fontFamily="@font/dohyeonregular"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
+            android:textSize="20sp"
             android:text="음성 주문하기"
-            android:background="@drawable/select_btn"/>
+            android:textColor="#111111" />
     </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bottomtitle_black" />
 </LinearLayout>

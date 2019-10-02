@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="100dp"
-    android:background="@drawable/tedoori"
     android:orientation="horizontal">
 
 
     <TextView
-        android:layout_marginLeft="5dp"
         android:id="@+id/order_info"
+        android:layout_marginStart="5dp"
+        android:gravity="center|center_vertical"
         android:layout_width="270dp"
         android:layout_height="80dp"
-        android:gravity="center|center_vertical"
-        android:textStyle="bold"
+        android:fontFamily="@font/dohyeonregular"
+        android:textColor="#111111"
         android:text="TextView" />
 
     <View
@@ -24,11 +25,12 @@
         android:id="@+id/delete"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:layout_gravity="right|center"
-        android:layout_marginRight="10dp"
-        android:textColor="#FFFFFF"
+        android:layout_marginEnd="10dp"
+        android:layout_gravity="center"
+        android:fontFamily="@font/dohyeonregular"
         android:text="주문완료"
         android:textStyle="bold"
+        android:textColor="#111111"
         android:background="@drawable/select_btn"/>
 
 </LinearLayout>

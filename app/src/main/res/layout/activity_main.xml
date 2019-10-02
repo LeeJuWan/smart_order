@@ -2,57 +2,60 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
     <ImageView
-        android:id="@+id/imageView1"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_marginTop="60dp"
-        android:layout_gravity="center"
-        android:layout_centerHorizontal="true" />
+        android:layout_height="100dp"
+        android:layout_marginBottom="120dp"
+        android:background="@drawable/title" />
 
     <LinearLayout
-        android:layout_marginTop="60dp"
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:layout_marginBottom="50dp">
 
         <Button
             android:id="@+id/admin_Flow"
-            android:layout_width="123dp"
-            android:layout_height="80dp"
-            android:layout_weight="1"
-            android:textColor="#FFFFFF"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="110dp"
+            android:height="70dp"
+            android:fontFamily="@font/dohyeonregular"
             android:text="관리자용"
+            android:textSize="25sp"
+            android:textColor="#111111"
             android:textStyle="bold"
-            android:textSize="15sp"
-            android:background="@drawable/select_btn"/>
-
-        <Button
-            android:textColor="#FFFFFF"
-            android:id="@+id/customer_Flow"
-            android:layout_width="120dp"
-            android:layout_height="80dp"
-            android:layout_weight="1"
-            android:text="손님용"
-            android:textStyle="bold"
-            android:textSize="15sp"
             android:background="@drawable/select_btn"/>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textView"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="140dp">
+
+        <Button
+            android:id="@+id/customer_Flow"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="110dp"
+            android:height="70dp"
+            android:fontFamily="@font/dohyeonregular"
+            android:text="손님용"
+            android:textSize="25sp"
+            android:textColor="#111111"
+            android:textStyle="bold"
+            android:background="@drawable/select_btn"/>
+    </LinearLayout>
+
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="손님 전용 사용 시 로그인이 필요하지 않습니다."
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:background="@drawable/bottomtitle" />
 
 </LinearLayout>

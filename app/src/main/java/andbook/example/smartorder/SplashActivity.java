@@ -15,7 +15,7 @@ public class SplashActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN); // 상태바 제거
         try{
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             startActivity(new Intent(this,MainActivity.class));
             finish();
         }catch (InterruptedException e){

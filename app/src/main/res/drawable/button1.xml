@@ -4,8 +4,11 @@
     android:shape="rectangle">
     <gradient
         android:angle="45"
-        android:endColor="@color/colorAccent"
-        android:startColor="#FFFFFF"
-        android:type="linear" />
+        android:endColor="#FFFFFF"
+        android:startColor="#FFFFFF"/>
     <corners android:radius="40dp" />
+
+    <stroke
+        android:width="2dp"
+        android:color="#EEEEEE"/>
 </shape>

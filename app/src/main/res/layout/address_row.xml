@@ -4,18 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="50dp"
     android:gravity="center"
-    android:background="@drawable/tedoori"
     android:orientation="horizontal">
 
     <TextView
         android:id="@+id/place_name"
         android:layout_width="90dp"
         android:layout_height="50dp"
-        android:fontFamily="serif"
-        android:text="TextView"
+        android:fontFamily="@font/dohyeonregular"
+        android:textColor="#111111"
         android:textSize="15sp"
         android:gravity="center"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:text="TextView"/>
+
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -25,11 +26,12 @@
         android:id="@+id/address"
         android:layout_width="170dp"
         android:layout_height="50dp"
-        android:fontFamily="serif"
-        android:text="TextView"
+        android:fontFamily="@font/dohyeonregular"
+        android:textColor="#111111"
         android:textSize="13sp"
         android:gravity="center"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:text="TextView"/>
 
     <View
         android:layout_width="0dp"
@@ -40,10 +42,10 @@
         android:id="@+id/phone_number"
         android:layout_width="100dp"
         android:layout_height="50dp"
-        android:fontFamily="serif"
-        android:text="TextView"
+        android:fontFamily="@font/dohyeonregular"
+        android:textColor="#111111"
         android:gravity="center"
         android:textSize="13sp"
-        android:textStyle="bold" />
-
+        android:textStyle="bold"
+        android:text="TextView"/>
 </LinearLayout>

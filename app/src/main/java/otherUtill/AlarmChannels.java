@@ -8,6 +8,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -92,7 +93,8 @@ public class AlarmChannels {
 
         builder = new Notification.Builder(context,channel)
                 .setTicker(message)
-                .setSmallIcon(R.mipmap.ic_launcher) // 알람 이모티콘
+                .setSmallIcon(R.mipmap.noti_48) // 알람 이모티콘
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.noti_96))
                 .setWhen(System.currentTimeMillis()) // 알람 발생 시간
                 .setContentTitle("주문이 들어왔어요! 확인해보세요!") // 알람 제목
                 .setContentText(message) // 알람 내용
@@ -130,7 +132,8 @@ public class AlarmChannels {
 
         builder = new Notification.Builder(context)
                 .setTicker(message) // 알람 발생 시 잠깐 text 나타냄
-                .setSmallIcon(R.mipmap.ic_launcher) // 알람 이모티콘
+                .setSmallIcon(R.mipmap.noti_48) // 알람 이모티콘
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.noti_96))
                 .setWhen(System.currentTimeMillis()) // 알람 발생 시간
                 .setContentTitle("주문이 들어왔어요! 확인해보세요!") // 알람 제목
                 .setContentText(message) // 알람 내용
